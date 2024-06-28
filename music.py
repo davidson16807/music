@@ -89,36 +89,33 @@ notes = {
 
 # chords: picking semitones to play together
 
-monad = [0]
 
-dyads = {
-    'power'  : [0,7],
-}
-
-triads = {
-    # 'monad' : [0],
-    # 'dyad'  : [0,4],
-    'M'  : [0,4,7], # major
-    'm'  : [0,3,7], # minor
-    's2' : [0,2,7], # suspended 2
-    's4' : [0,5,7], # suspended 4
-    '+'  : [0,4,8], # augmented
-    '-'  : [0,3,6], # diminished
-}
-
-tetrads = {
-    'M7'   : [0,4,7,11], # major
+chords = {
+    'monad' : [0], # functional programmers love their monads, right?
+    'power' : [0,7],
+    ''     : [0,4,7], # major
+    'm'    : [0,3,7], # minor
+    's2'   : [0,2,7], # suspended 2
+    's4'   : [0,5,7], # suspended 4
+    '+'    : [0,4,8], # augmented
+    '-'    : [0,3,6], # diminished
+    'M7'   : [0,4,7,11], # major 9th
     'm7'   : [0,3,7,10], # minor
-    'Mm7'  : [0,4,7,10], # major minor 7
+    '7'    : [0,4,7,10], # dominant 7 / major minor 7
     '-7'   : [0,3,6,9 ], # diminished
     'mM7'  : [0,3,7,11], # minor major 7
     '+M7'  : [0,4,8,11], # augmented major
     '+7'   : [0,4,8,11], # augmented
+    'M9'   : [0,4,7,11,14], # major 9th
+    'm9'   : [0,3,7,10,14], # minor 9th
 }
 
 # style: the manner of playing chords, maps root×chord ⟶ track
 style = lambda temperament, timbre: lambda combination, sequence:  (
-    lambda root, chord: combination(*[timbre(temperament(root+chord[interval])) for interval in sequence])
+    lambda root, chord: combination(*[
+        timbre(temperament(root+chord[interval%len(chord)], octave=interval//len(chord))) 
+        for interval in sequence
+    ])
 )
 
 # progression = lambda :
@@ -163,42 +160,43 @@ track=series(1)(
 #         timbre(half(7)),
 #     ),
 # )
-print(triads.values())
 part = style(equal(440,12), sine(0.1))
 harmony = part(mix, [0,1,2])
 melody = part(series(3), [0,1,2])
-key = major7(notes['c'])
+key = major7(notes['d'])
 # track = series(3/2)(*[harmony(4, chord) for chord in triads.values()]) # iterates through harmonic chords
 # track = series(3/2)(*[melody(0, chord) for chord in triads.values()]) # iterates through arpeggiated chords
 
-progression = lambda style, key, chords, chord_hertz, notation: (
+progression = lambda style, key, chord_hertz, notation: (
     series(chord_hertz)(*[
         style(key(int(chord[0])), chords[chord[1:]]) 
         for chord in notation.split()
     ])
 )
-# track1 = series(1)(*[
-#     style(equal(440/2,12), parabola(0.1))(mix, monad)(key(int(chord[0])), triads[chord[1:]]) 
-#     for chord in '8M 5M 6m 3m 4M 1M 4M 5M'.split()
-# ])
-# track2 = series(1)(*[
-#     style(equal(440,12), sine(0.1))(mix, [0,1,2])(key(int(chord[0])), triads[chord[1:]]) 
-#     for chord in '8M 5M 6m 3m 4M 1M 4M 5M'.split()
-# ]) 
-# track3 = series(1)(*[
-#     style(equal(440,12), triangle(0.1))(series(3), [0,1,2])(key(int(chord[0])), triads[chord[1:]]) 
-#     for chord in '8M 5M 6m 3m 4M 1M 4M 5M'.split()
-# ]) 
-track1 = progression(style(equal(440/2,12), parabola(0.1))(mix, monad),       key, triads, 1, '8M 5M 6m 3m 4M 1M 4M 5M')
-track2 = progression(style(equal(440,12), sine(0.1))(mix, [0,1,2]),           key, triads, 1, '8M 5M 6m 3m 4M 1M 4M 5M')
-track3 = progression(style(equal(440,12), triangle(0.1))(series(3), [0,1,2]), key, triads, 1, '8M 5M 6m 3m 4M 1M 4M 5M')
-track = series(1/8)( 
-    mix(track1),
-    mix(track1, track2),
-    mix(track1, track2, track3),
-) # I'll see your ass in hell, Pachabel!
-# track = progression(style(equal(440,12), triangle(0.1))(series(7/2), [0,1,2,1,0,1,2]), key, triads, 1/2, '8M 5M 6m 3m 4M 1M 4M 5M')
 
-duration = 8*3
+# progressions
+pachabel = '8 5 6m 3m 4 1 4 5'
+doowop = '1 6m 4 5'
+hallelujah = '1 6m 1 6m 4 5 1 5 1 4 5 6m 4 5 37 6m 4 6m 4 1 5 1'
+sensitive_female = '6m 4 1 5' # so coined by Boston Globe, example: zombie, snow, real world, poker face, otherside
+four_chords = '1 5 6m 4' # so coined by Axis of Awesome, examples: basically everything
+anime_theme = '47 5m7 3m7 6m' # 
+rickroll = '4m9 7m7 5m7 1m' # 
+dire_dire_docks = '1 7 1 7 6m 7' #
+# dire_dire_docks2 = '4M 3m 2m 1M' #
+# dire_dire_docks = '4M 3m 2m 1- 2m 5M 1M' #
+
+# track1 = progression(style(equal(440/2,12), parabola(0.1))(mix, monad),       key, 1, pachabel)
+# track2 = progression(style(equal(440,12), sine(0.1))(mix, [0,1,2]),           key, 1, pachabel)
+# track3 = progression(style(equal(440,12), triangle(0.1))(series(3), [0,1,2]), key, 1, pachabel)
+# track = series(1/8)( 
+#     mix(track1),
+#     mix(track1, track2),
+#     mix(track1, track2, track3),
+# ) # I'll see your ass in hell, Pachabel!
+
+track = progression(style(equal(220,12), triangle(0.1))(series(6/2), [0,2,3,4,5,6]), dorian(notes['c']), 1/2, hallelujah)
+
+duration = 22*2
 framerate = 41900
 stream.write(bytes(bytearray(tuple(track(time/framerate) for time in range(int(duration*framerate)))))) 
