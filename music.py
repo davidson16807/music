@@ -113,6 +113,7 @@ chords = {
     'monad' : [0], # functional programmers love their monads, right?
     'power' : [0,7],
     ''     : [0,4,7], # major
+    'M'    : [0,4,7], # major
     'm'    : [0,3,7], # minor
     's2'   : [0,2,7], # suspended 2
     's4'   : [0,5,7], # suspended 4
@@ -137,55 +138,75 @@ style = lambda temperament, timbre: lambda combination, sequence:  (
     ])
 )
 
-
+# lifts or lowers by one full tone an interval that is reported in semitones
 class Diatonic:
     def __init__(self):
         pass
     def lift(self, full):
-        return (full + (1 if full in {2,7} else 2)) % 12
+        return (full + (1 if full % 12 in {2,7} else 2))
     def lower(self, full):
-        return (full - (1 if full in {3,8} else 2)) % 12
+        return (full - (1 if full % 12 in {3,8} else 2))
 
 class Tonnetz:
-    def __init__(self):
-        self.diatonic = Diatonic()
-    def leading(self, chord): # swap root with lead
-        return sorted([chord[0]-1, *chord[1:]])
-    def parallel(self, chord): # swap major and minor
+    def __init__(self, diatonic):
+        self.diatonic = diatonic
+    def parallel(self, chord): # swap major and minor, this operation is involute
         is_major = (chord[1]%12) - (chord[0]%12) > 3
-        return sorted([
-                    ((interval-1 if is_major else interval+1)
-                        if interval in {3,4,8,9,10,11} else interval)
-                    for interval in chord
-                ])
-    def relative(self, chord): #
+        first, third, fifth = chord
+        return [first, third+(-1 if is_major else 1), fifth]
+    def relative(self, chord): # move up or down a full tone
         is_major = (chord[1]%12) - (chord[0]%12) > 3
-        if is_major: # move the fifth up a tone
-            return sorted([
-                        *chord[:2], 
-                        self.diatonic.lift(chord[2]),
-                        *chord[3:]
-                    ])
-        else: # move the root down a tone
-            return sorted([
-                        self.diatonic.lower(chord[2]),
-                        *chord[1:]
-                    ])
+        first, third, fifth = chord
+        return ([self.diatonic.lift(fifth)-12, first, third] if is_major
+            else [third, fifth, self.diatonic.lower(first)+12])
+    def leading(self, chord): # move up or down a semitone
+        is_major = (chord[1]%12) - (chord[0]%12) > 3
+        first, third, fifth = chord
+        return ([third, fifth, first+11] if is_major
+            else [fifth-11, first, third])
 
-tonnetz = Tonnetz()
+tonnetz = Tonnetz(Diatonic())
 tonnetz.relative([0,4,7])
 # breakpoint()
 
 et12 = style(equal(440,12), sine(0.1))(mix, [0,1,2])
 c = notes['c']
-track=series(1)(
-    et12(c, [0,4,7]),
-    et12(c, tonnetz.relative([0,4,7])),
-    et12(c, [0,4,7]),
-    et12(c, tonnetz.leading([0,4,7])),
-    et12(c, [0,4,7]),
-    et12(c, tonnetz.parallel([0,4,7])),
-)
+# track=series(1)(
+#     et12(c, [0,4,7]),
+#     et12(c, tonnetz.relative([0,4,7])),
+#     et12(c, tonnetz.relative(tonnetz.relative([0,4,7]))),
+#     et12(c, [0,4,7]),
+#     et12(c, tonnetz.leading([0,4,7])),
+#     et12(c, tonnetz.leading(tonnetz.leading([0,4,7]))),
+#     et12(c, [0,4,7]),
+#     et12(c, tonnetz.parallel([0,4,7])),
+#     et12(c, tonnetz.parallel(tonnetz.parallel([0,4,7]))),
+# )
+
+class NeoRiemannianProgression:
+    def __init__(self, tonnetz):
+        self.tonnetz = tonnetz
+        self.code = {
+            'l': tonnetz.leading,
+            'p': tonnetz.parallel,
+            'r': tonnetz.relative,
+        }
+    def progression(self, style, chord_hertz, root, start, notation):
+        chord = [root+interval for interval in start]
+        chords = [chord]
+        for transform in notation.split():
+            for character in transform:
+                chord = self.code[character](chord)
+            chords.append(chord)
+        return series(chord_hertz)(*[
+            style(0, chord)
+            for chord in chords
+        ])
+
+et12 = style(equal(440,12), sine(0.1))
+nrp = NeoRiemannianProgression(tonnetz)
+# track = nrp.progression(et12(mix, [2,1,0]), 1/3, notes['f'], chords['M'], 'rlp') # tifa
+track = nrp.progression(et12(series(5/2), [0,2,1,0,-1]), 1/2, notes['c'], chords['M'], 'lrlr lrlr') # et
 
 # progression = lambda :
 
