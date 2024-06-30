@@ -16,7 +16,7 @@ triangle = lambda volume: lambda hertz: lambda time: int(volume*255*abs(((time*h
 parabol  = lambda t: (1-t)*(1-t*t) + t*(t-1)**2 # so named because it is the lead-in to "parabola"
 parabola = lambda volume: lambda hertz: lambda time: int(volume*255*parabol(abs((2*(time*hertz+1)%2.0) - 1)))
 ''' ^^^The `parabola` wave is an interpolation between 
-two parabolic approximations of a cosine where the interpolant "t" is a triangle wave.'''
+parabolic approximations of a cosine's crest and trough where the interpolant "t" is a triangle wave.'''
 
 # combinations: fundamental operators of track composition
 mix    =                     lambda *tracks: lambda time: sum(track(time) for track in tracks)
@@ -79,12 +79,11 @@ notes = {
     'e'  : 7,
     'f♭' : 7,
     'e♯' : 8,
-    'f♭' : 8,
-    'f'  : 9,
-    'f♯' : 10,
-    'g♭' : 10,
-    'g'  : 11,
-    'g♯' : 12,
+    'f'  : 8,
+    'f♯' : 9,
+    'g♭' : 9,
+    'g'  : 10,
+    'g♯' : 11,
 }
 
 # chords: picking semitones to play together
@@ -99,8 +98,8 @@ chords = {
     's4'   : [0,5,7], # suspended 4
     '+'    : [0,4,8], # augmented
     '-'    : [0,3,6], # diminished
-    'M7'   : [0,4,7,11], # major 9th
-    'm7'   : [0,3,7,10], # minor
+    'M7'   : [0,4,7,11], # major 7th
+    'm7'   : [0,3,7,10], # minor 7th
     '7'    : [0,4,7,10], # dominant 7 / major minor 7
     '-7'   : [0,3,6,9 ], # diminished
     'mM7'  : [0,3,7,11], # minor major 7
@@ -116,6 +115,56 @@ style = lambda temperament, timbre: lambda combination, sequence:  (
         timbre(temperament(root+chord[interval%len(chord)], octave=interval//len(chord))) 
         for interval in sequence
     ])
+)
+
+
+class Diatonic:
+    def __init__(self):
+        pass
+    def lift(self, full):
+        return (full + (1 if full in {2,7} else 2)) % 12
+    def lower(self, full):
+        return (full - (1 if full in {3,8} else 2)) % 12
+
+class Tonnetz:
+    def __init__(self):
+        self.diatonic = Diatonic()
+    def leading(self, chord): # swap root with lead
+        return sorted([chord[0]-1, *chord[1:]])
+    def parallel(self, chord): # swap major and minor
+        is_major = (chord[1]%12) - (chord[0]%12) > 3
+        return sorted([
+                    ((interval-1 if is_major else interval+1)
+                        if interval in {3,4,8,9,10,11} else interval)
+                    for interval in chord
+                ])
+    def relative(self, chord): #
+        is_major = (chord[1]%12) - (chord[0]%12) > 3
+        if is_major: # move the fifth up a tone
+            return sorted([
+                        *chord[:2], 
+                        self.diatonic.lift(chord[2]),
+                        *chord[3:]
+                    ])
+        else: # move the root down a tone
+            return sorted([
+                        self.diatonic.lower(chord[2]),
+                        *chord[1:]
+                    ])
+
+tonnetz = Tonnetz()
+tonnetz.relative([0,4,7])
+# breakpoint()
+
+et12 = style(equal(440,12), sine(0.1))(mix, [0,1,2])
+c = notes['c']
+track=series(1)(
+    et12(c, [0,4,7]),
+    et12(c, tonnetz.relative([0,4,7])),
+    et12(c, [0,4,7]),
+    et12(c, tonnetz.leading([0,4,7])),
+    et12(c, [0,4,7]),
+    et12(c, tonnetz.parallel([0,4,7])),
 )
 
 # progression = lambda :
@@ -169,22 +218,39 @@ key = major7(notes['d'])
 
 progression = lambda style, key, chord_hertz, notation: (
     series(chord_hertz)(*[
-        style(key(int(chord[0])), chords[chord[1:]]) 
+        style(
+            key(int(chord[0]))+('#' in chord)-('b' in chord), 
+            chords[chord[1:].replace('b','').replace('#','')]
+        ) 
         for chord in notation.split()
     ])
 )
 
 # progressions
-pachabel = '8 5 6m 3m 4 1 4 5'
-doowop = '1 6m 4 5'
-hallelujah = '1 6m 1 6m 4 5 1 5 1 4 5 6m 4 5 37 6m 4 6m 4 1 5 1'
-sensitive_female = '6m 4 1 5' # so coined by Boston Globe, example: zombie, snow, real world, poker face, otherside
 four_chords = '1 5 6m 4' # so coined by Axis of Awesome, examples: basically everything
+sensitive_female = '6m 4 1 5' # so coined by Boston Globe, example: zombie, snow, real world, poker face, otherside
+doowop = '1 6m 4 5'
+pachabel = '8 5 6m 3m 4 1 4 5'
+hallelujah = '1 6m 1 6m 4 5 1 5 1 4 5 6m 4 5 37 6m 4 6m 4 1 5 1'
 anime_theme = '47 5m7 3m7 6m' # 
 rickroll = '4m9 7m7 5m7 1m' # 
 dire_dire_docks = '1 7 1 7 6m 7' #
 # dire_dire_docks2 = '4M 3m 2m 1M' #
 # dire_dire_docks = '4M 3m 2m 1- 2m 5M 1M' #
+dollars_and_cents = '1 1 1m 1m' #[0,0,1,2,3,2,3,2,3,6]
+morning_bell = '2m 2M7 2m 2M7 1s2 5' #[0,0,1,2,3,2,3,2,3,6]
+daydreaming = '6m 1 1 4M7 6m 1 1 4M7 6m 1 1 2s2 2m 2s2 2m 2s2 2m 2s2 2m' #[6,0,1,2,1,0] # something doesn't sound right here
+everything_in_its_right_place = '5 1 2b 3b' #[0,0,1,2,3,2,3,2,3,6]
+epitaph = '1 5m7'
+last_of_us = '1m 1s2 1m 1s2 3 1m'
+test = '1 1b 4 4b 5 5b' #[0,0,1,2,3,2,3,2,3,6]
+chocobo = '5 4'
+revived_power = '2 1 3 4 5 6 2 1 1 7b 1 7b 1 2m 6b 2m 6b 2 2 6m 2m 6m 2b 1 2 6m 2 5 2 6m 2 5 2 7b 2 1 7b 2 1'
+cosmos = '1 5 1 6m 4 1 5 5 1 4 1 4 1 4 1 4 1'
+koyaanisqatsi1 = '5 4 3b'
+koyaanisqatsi2 = '5 2m 1m 2 5m 2'
+
+et12 = style(equal(440,12), sine(0.1))
 
 # track1 = progression(style(equal(440/2,12), parabola(0.1))(mix, monad),       key, 1, pachabel)
 # track2 = progression(style(equal(440,12), sine(0.1))(mix, [0,1,2]),           key, 1, pachabel)
@@ -195,8 +261,43 @@ dire_dire_docks = '1 7 1 7 6m 7' #
 #     mix(track1, track2, track3),
 # ) # I'll see your ass in hell, Pachabel!
 
-track = progression(style(equal(220,12), triangle(0.1))(series(6/2), [0,2,3,4,5,6]), dorian(notes['c']), 1/2, hallelujah)
+# track = progression(et12(series(4/2), [0,1,0,2]), phrygian(c), 1/2,  '1m 4m 5m') # brooding
+# track = progression(et12(series(4/2), [0,1,0,2]), phrygian(c), 1/2,  '1m 1m 6 7') # brooding
+# track = progression(et12(series(4/2), [0,1,0,2]), phrygian(c), 1/2,  '1m 6 4m 5') # brooding
+# track = progression(et12(series(4/2), [0,1,0,2]), phrygian(c), 1/2,  '1 2') # brooding
+# track = progression(et12(series(4/2), [0,1,0,2]), locrian(c), 1/2,  '1 2') # brooding
+# track = progression(et12(series(4/2), [0,1,0,2]), major7(c), 1/2,  '1m 3 2m 1m') # mysterious
+# track = progression(et12(series(4/2), [0,1,0,2]), major7(c), 1/2,  '1m 6 4m') # brooding
+# track = progression(et12(series(4/2), [0,1,0,2]), major7(c), 1/2,  '1m 7 3m 2m') # haunted
+# track = progression(et12(series(3/2), [0,2,1]), major7(c), 1/2,  '1m 7 4m 5m') # donnie darko
+# track = progression(et12(mix, [0,1,2]), major7(c), 1/2,  '1m 6 3 7') # brooding
+# track = progression(et12(series(5/1), [0,1,2,3,4,3,2]), phrygian(c), 1/1,  '1m 6 1M9') # evil genius boss fight
+# track = progression(et12(series(7/1), [0,1,2,3,4,3,2]), phrygian(c), 1/1,  '1m 6 3 1M9') # boss fight
+# track = progression(et12(series(5/1), [0,1,2,3,4,3,2]), major7(c), 1/1,  '1m 3 2m 1m') # unfolding mystery
+# track = progression(et12(series(6/2), [0,1,2,3,2,1]), major7(c), 1/2,  hallelujah)
+# track = progression(et12(series(10/2), [0,0,1,2,3,2,3,2,3,6]), major7(c), 1/2,  dollars_and_cents)
+# track = progression(et12(series(10/2), [0,0,1,2,3,2,3,2,3,6]), major7(c), 1/2,  morning_bell)
+# track = progression(et12(series(5/1), [0,1,2,3,4,3]), phrygian(c), 1/2,  '1 1b 4 4b 5 5b') # wacky science lab
+# track = progression(et12(series(5/1), [0,1,2]), major7(c), 1/2,  '1m 3 1m 2 1m 7 1m') # "its coming from inside the house!"
+# track = progression(et12(series(4/1), [0,3,4,5]), mixolydian(notes['a']), 1/1,  '1 5m7') # epitaph, ff6
+# track = progression(et12(series(4/1), [0,3,4,5]), mixolydian(c), 1/1,  '4 5') # chocobo
+# track = progression(et12(mix, [0,1,2]), major7(c), 1/2,  '1m 1s2 1m 1s2 3 1m') # last of us
+# track = progression(et12(series(7/2), [0,1,2,4,3,2,1,0]), major7(c), 1/2,  revived_power) 
+# track = progression(et12(series(3/2), [2,0,1]), major7(notes['a']), 1/2,  cosmos) 
+# track = progression(et12(series(3), [0,1,2]), major7(notes['d']), 1, pachabel)
+# track = progression(et12(series(3), [0,1,2]), major7(c), 1, doowop)
+# track = progression(et12(mix, [1,0,1,2]), major7(notes['g']), 1, koyaanisqatsi1)
+# track = progression(et12(mix, [0,1,2]), major7(notes['d']), 1/2,  '5 1 3m 5') # higher and higher
+# track = progression(et12(series(6/2), [0,1,2,3,2,1]), major7(c), 1/2,  '1 5 2m 5') # walking up and down fifths, "love song" vibes
+# track = progression(et12(series(6/2), [0,1,2,3,2,1]), major7(c), 1/2,  '1 5 2 5') # walking up and down fifths, "sing song", uninterestingly happy
+# track = progression(et12(series(6/2), [0,1,2,3,2,1]), major7(c), 1/2,  '8 5 2m 5') # walking up and down fifths, "sing song", uninterestingly happy
+# track = progression(et12(series(3/1), [0,1,2]), major7(c), 1/1,  '1m 1m 1m 1m 1m 1m 1m 1m 6 6 2b 2b 57 1m 5s4 57') # moonlight sonata, notation currently restricts some chords
 
-duration = 22*2
+duration = len(hallelujah)*2
+# duration = 8*2
 framerate = 41900
 stream.write(bytes(bytearray(tuple(track(time/framerate) for time in range(int(duration*framerate)))))) 
+
+
+
+# vii IV I V ii
