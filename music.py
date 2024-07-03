@@ -130,10 +130,10 @@ chords = {
     'm9'   : [0,3,7,10,14], # minor 9th
 }
 
-# style: the manner of playing chords, maps root×chord ⟶ track
+# style: the manner of playing chords, maps root×quality ⟶ track
 style = lambda temperament, timbre: lambda combination, sequence:  (
-    lambda root, chord: combination(*[
-        timbre(temperament(root+chord[interval%len(chord)], octave=interval//len(chord))) 
+    lambda root, quality: combination(*[
+        timbre(temperament(root+quality[interval%len(quality)], octave=interval//len(quality))) 
         for interval in sequence
     ])
 )
@@ -194,9 +194,11 @@ class NeoRiemannianProgression:
     def progression(self, style, chord_hertz, root, start, notation):
         chord = [root+interval for interval in start]
         chords = [chord]
-        for transform in notation.split():
-            for character in transform:
+        print(' ', chord[0], [interval-chord[0] for interval in chord])
+        for transition in notation.split():
+            for character in transition:
                 chord = self.code[character](chord)
+                print(character, chord[0], [interval-chord[0] for interval in chord])
             chords.append(chord)
         return series(chord_hertz)(*[
             style(0, chord)
@@ -206,7 +208,8 @@ class NeoRiemannianProgression:
 et12 = style(equal(440,12), sine(0.1))
 nrp = NeoRiemannianProgression(tonnetz)
 # track = nrp.progression(et12(mix, [2,1,0]), 1/3, notes['f'], chords['M'], 'rlp') # tifa
-track = nrp.progression(et12(series(5/2), [0,2,1,0,-1]), 1/2, notes['c'], chords['M'], 'lrlr lrlr') # et
+# track = nrp.progression(et12(series(5/2), [0,2,1,0,-1]), 1/2, notes['c'], chords['M'], 'lrlr lrlr') # et
+track = nrp.progression(et12(mix, [0,1,2]), 1/1, notes['f'], chords['M'], 'lr lr') # et
 
 # progression = lambda :
 
@@ -316,7 +319,7 @@ et12 = style(equal(440,12), sine(0.1))
 # track = progression(et12(series(7/1), [0,1,2,3,4,3,2]), phrygian(c), 1/1,  '1m 6 3 1M9') # boss fight
 # track = progression(et12(series(5/1), [0,1,2,3,4,3,2]), major7(c), 1/1,  '1m 3 2m 1m') # unfolding mystery
 # track = progression(et12(series(6/2), [0,1,2,3,2,1]), major7(c), 1/2,  hallelujah)
-# track = progression(et12(series(10/2), [0,0,1,2,3,2,3,2,3,6]), major7(c), 1/2,  dollars_and_cents)
+track = progression(et12(series(10/2), [0,0,1,2,3,2,3,2,3,6]), major7(c), 1/2,  dollars_and_cents)
 # track = progression(et12(series(10/2), [0,0,1,2,3,2,3,2,3,6]), major7(c), 1/2,  morning_bell)
 # track = progression(et12(series(5/1), [0,1,2,3,4,3]), phrygian(c), 1/2,  '1 1b 4 4b 5 5b') # wacky science lab
 # track = progression(et12(series(5/1), [0,1,2]), major7(c), 1/2,  '1m 3 1m 2 1m 7 1m') # "its coming from inside the house!"
@@ -333,12 +336,60 @@ et12 = style(equal(440,12), sine(0.1))
 # track = progression(et12(series(6/2), [0,1,2,3,2,1]), major7(c), 1/2,  '1 5 2 5') # walking up and down fifths, "sing song", uninterestingly happy
 # track = progression(et12(series(6/2), [0,1,2,3,2,1]), major7(c), 1/2,  '8 5 2m 5') # walking up and down fifths, "sing song", uninterestingly happy
 # track = progression(et12(series(3/1), [0,1,2]), major7(c), 1/1,  '1m 1m 1m 1m 1m 1m 1m 1m 6 6 2b 2b 57 1m 5s4 57') # moonlight sonata, notation currently restricts some chords
+# track = progression(et12(mix, [0,1,2]), major7(c), 1/1,  '1 5') # moonlight sonata, notation currently restricts some chords
+
+def play(track, duration, framerate): 
+    stream.write(bytes(bytearray(tuple(track(time/framerate) for time in range(int(duration*framerate)))))) 
 
 duration = len(hallelujah)*2
 # duration = 8*2
 framerate = 41900
-stream.write(bytes(bytearray(tuple(track(time/framerate) for time in range(int(duration*framerate)))))) 
+
+def prompt(first, second):
+
+
+import itertools
+codes = {'', 'save'}
+
+for i, (first, second) in itertools.product(chords.values(), repeat=2):
+    response = ''
+    while response in codes:
+        track = progression(et12(series(1), [0,1,2]), major7(c), 1/2,  dollars_and_cents)
+        play(track, 2)
+        response = input('what do you feel? [press "enter" to replay, type "save" to save progress] ')
+    while not response:
+        track = progression(et12(series(1), [0,1,2]), major7(c), 1/2,  dollars_and_cents)
+        play(track, 2)
+        response = input('what do you feel? [press "enter" to replay, type "save" to save progress] ')
 
 
 
 # vii IV I V ii
+
+
+'''
+relation between music and feeling:
+it is asserted that there exists a map:
+
+music ⟶ feeling
+
+which accepts a music composition and determines what the average member of a western audience would feel in listening to it
+by iterative approximation, the job of a composer is typically to produce an inverse:
+
+feeling ⟶ music
+
+that maps feelings to an instance of music such that the following commutes:
+
+feeling ↔ music
+
+The question we would like to answer is whether a surrogate can be constructed to approximate this map
+
+The terms "feeling" and "music" are no where formally defined and we do not presume any incontrovertible definitions will be found,
+however our surrogate must necessarily create representative data structures for both. 
+We suspect that "feeling" is especially difficult to represent,
+so our first task is to articulate how "feeling" varies in ways that that can be represent musically.
+We will restrict ourselves to western canon in this treatment.
+
+heart beat  tempo
+
+'''
