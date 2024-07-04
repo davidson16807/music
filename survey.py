@@ -131,10 +131,11 @@ class Serialization:
     def parse(self, text):
         return [line.split(self.delimiter) for line in text.split('\n')]
 
-filename = 'chords.tsv'
+qualities = 'qualities.tsv'
+roots = 'roots.tsv'
 serialization = Serialization('\t')
 try:
-    with open(filename, 'r') as file:
+    with open(roots, 'r') as file:
         data = serialization.parse(file.read())
 except:
     print('WARNING: an error occured while reading your save, future attempts to save may wipe old data')
@@ -143,26 +144,25 @@ start_id = max([-1, *[int(i) for i, first, second, is_arpeggio, response in data
 
 quality_sequence = 'M m s2 s4 + - M7 m7 7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
 root_sequence = list(range(12))
+interval_sequence = [1,5,4,3,7,6,9,8,11,10,2]
 codes = {'', 'save'}
 
-end_id = 0
-for i, (first, second, is_arpeggio) in enumerate(itertools.product(quality_sequence, quality_sequence, [False,True])):
+for i, (first, interval, is_arpeggio) in enumerate(itertools.product(root_sequence, interval_sequence, [False,True])):
     if i > start_id:
         response = ''
         while response in codes:
-            response = prompt('1'+first, '1'+second, is_arpeggio)
+            response = prompt(str(first), str(first+interval), is_arpeggio)
             if response == 'save':
-                with open(filename, 'w') as file:
+                with open(roots, 'w') as file:
                     file.write(serialization.format(data))
         data.append((i, first, second, is_arpeggio, response))
-    end_id = i
 
-for i, (first, second, is_arpeggio) in enumerate(itertools.product(root_sequence, root_sequence, [False,True])):
-    if i+end_id > start_id:
-        response = ''
-        while response in codes:
-            response = prompt(first, second, is_arpeggio)
-            if response == 'save':
-                with open(filename, 'w') as file:
-                    file.write(serialization.format(data))
-        data.append((i+end_id, first, second, is_arpeggio, response))
+# for i, (first, second, is_arpeggio) in enumerate(itertools.product(root_sequence, root_sequence, [False,True])):
+#     if i > start_id:
+#         response = ''
+#         while response in codes:
+#             response = prompt(first, second, is_arpeggio)
+#             if response == 'save':
+#                 with open(qualities, 'w') as file:
+#                     file.write(serialization.format(data))
+#         data.append((i+end_id, first, second, is_arpeggio, response))
