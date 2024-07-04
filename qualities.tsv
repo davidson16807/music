@@ -249,7 +249,7 @@
 248	s4	M3	False	growing happy finality
 249	s4	M3	True	growing happy finality
 250	s4	P4	False	growing happy finality
-251	s4	P4	True	growing happy finlaity
+251	s4	P4	True	growing happy finality
 252	s4	P5	False	happy finality
 253	s4	P5	True	happy finality
 254	s4	P1	False	annoyance
@@ -431,7 +431,7 @@
 430	M7	M79	False	 
 431	M7	M79	True	growing confused optimism
 432	M7	m79	False	growing optimism
-433	M7	m79	True	growing optimims
+433	M7	m79	True	growing optimism
 434	M7	M911	False	annoyance
 435	M7	M911	True	confused wonder
 436	M7	m911	False	bewildered wonder
@@ -442,7 +442,7 @@
 441	M7	M3	True	sudden coherence
 442	M7	P4	False	sudden finality
 443	M7	P4	True	sudden coherent finality
-444	M7	P5	False	suddent optimistic finality
+444	M7	P5	False	sudden optimistic finality
 445	M7	P5	True	sudden optimistic finality
 446	M7	P1	False	sudden blissful finality
 447	M7	P1	True	 
@@ -750,11 +750,11 @@
 749	m9	add9	True	annoyance
 750	m9	M79	False	god damn annoyance
 751	m9	M79	True	annoyance
-752	m9	m79	False	dog gamn annoyance
+752	m9	m79	False	god damn annoyance
 753	m9	m79	True	annoyance
 754	m9	M911	False	fucking annoyance
 755	m9	M911	True	still annoyance
-756	m9	m911	False	miserably annoyance
+756	m9	m911	False	miserable annoyance
 757	m9	m911	True	complex
 758	m9	m3	False	annoyance
 759	m9	m3	True	complex
@@ -1063,7 +1063,7 @@
 1062	∅7	+7	False	 
 1063	∅7	+7	True	growing apprehension
 1064	∅7	add2	False	sudden peaceful resolution
-1065	∅7	add2	True	sudden peacful resolution
+1065	∅7	add2	True	sudden peaceful resolution
 1066	∅7	add4	False	sudden resolution
 1067	∅7	add4	True	sudden progressive resolution
 1068	∅7	add9	False	 
@@ -1578,7 +1578,7 @@
 1577	m79	add2	True	beautiful sudden resolution
 1578	m79	add4	False	beautiful sudden nuanced resolution
 1579	m79	add4	True	beautiful sudden nuanced progressive resolution
-1580	m79	add9	False	beautiful growing aprehension
+1580	m79	add9	False	beautiful growing apprehension
 1581	m79	add9	True	beautiful sudden resolution
 1582	m79	M79	False	beautiful growing apprehension
 1583	m79	M79	True	beautiful growing apprehension

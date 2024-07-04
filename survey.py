@@ -1,5 +1,6 @@
 import math 
 import itertools
+import re
 
 from pyaudio import PyAudio
 
@@ -92,13 +93,16 @@ style = lambda temperament, timbre: lambda combination, sequence:  (
     ])
 )
 
-progression = lambda style, key, chord_hertz, notation: (
+root = lambda chord_string: int(re.search('^-?[0-9]{1,2}', chord_string).group(0))
+quality = lambda chord_string: re.sub('^-?[0-9]{1,2}', '', chord_string)
+
+progression = lambda style, key, chord_hertz, progression_string: (
     series(chord_hertz)(*[
         style(
-            key(int(chord[0]))+('#' in chord)-('b' in chord), 
-            chords[chord[1:].replace('b','').replace('#','')]
+            key(root(chord))+('#' in chord)-('b' in chord), 
+            chords[quality(chord.replace('b','').replace('#',''))]
         ) 
-        for chord in notation.split()
+        for chord in progression_string.split()
     ])
 )
 
@@ -115,8 +119,8 @@ et12 = style(equal(440,12), sine(0.1))
 
 def prompt(first, second, is_arpeggio):
     notation = f'{first} {second}'
-    count = max(len(chords[first[1:]]), len(chords[second[1:]]))
     print(f'progression: {notation}')
+    count = max(len(chords[quality(first)]), len(chords[quality(second)]))
     play(progression(et12(series(count) if is_arpeggio else mix, list(range(count))), major7(0), 1, notation), 2, 41900)
     return input('what do you feel? [press "enter" to replay, type "save" to save progress] ')
 
@@ -144,7 +148,7 @@ start_id = max([-1, *[int(i) for i, first, second, is_arpeggio, response in data
 
 quality_sequence = 'M m s2 s4 + - M7 m7 7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
 root_sequence = list(range(12))
-interval_sequence = [1,5,4,3,7,6,9,8,11,10,2]
+interval_sequence = [1,-1,5,-5,4,-4,3,-3,2,-2,7,-7,6,-6,9,-9,8,-8,11,-11,10,-10]
 codes = {'', 'save'}
 
 for i, (first, interval, is_arpeggio) in enumerate(itertools.product(root_sequence, interval_sequence, [False,True])):
@@ -155,14 +159,15 @@ for i, (first, interval, is_arpeggio) in enumerate(itertools.product(root_sequen
             if response == 'save':
                 with open(roots, 'w') as file:
                     file.write(serialization.format(data))
-        data.append((i, first, second, is_arpeggio, response))
+        data.append((i, str(first), str(first+interval), is_arpeggio, response))
 
-# for i, (first, second, is_arpeggio) in enumerate(itertools.product(root_sequence, root_sequence, [False,True])):
+# for i, (first, second, is_arpeggio) in enumerate(itertools.product(quality_sequence, quality_sequence, [False,True])):
 #     if i > start_id:
 #         response = ''
 #         while response in codes:
-#             response = prompt(first, second, is_arpeggio)
+#             response = prompt('1'+first, '1'+second, is_arpeggio)
 #             if response == 'save':
 #                 with open(qualities, 'w') as file:
 #                     file.write(serialization.format(data))
-#         data.append((i+end_id, first, second, is_arpeggio, response))
+#         data.append((i, first, second, is_arpeggio, response))
+
