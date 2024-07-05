@@ -132,3 +132,19 @@
 131	2	-8	True	comfort
 132	3	4	False	surprise
 133	3	4	True	anticipation
+134	3	2	False	wonderous anticipation
+135	3	2	True	wonderous calm
+136	3	8	False	shock
+137	3	8	True	shock
+138	3	-2	False	sudden relief
+139	3	-2	True	relief
+140	3	7	False	surprise
+141	3	7	True	surprise
+142	3	-1	False	nuance
+143	3	-1	True	calm
+144	3	6	False	anticipation
+145	3	6	True	calm
+146	3	0	False	nuance
+147	3	0	True	sustained
+148	3	5	False	anticipation
+149	3	5	True	wonderous anticipation
