@@ -1,7 +1,5 @@
 # standard
-import math 
 import itertools
-import re
 
 # 3rd-party
 from pyaudio import PyAudio
@@ -9,8 +7,7 @@ from pyaudio import PyAudio
 # in-house
 import played
 import notated
-from notated import qualities, root, quality
-
+import stored
 
 pyaudio = PyAudio()
 play = played.sound(
@@ -26,7 +23,10 @@ et12 = played.style(played.equal(440,12), played.sine(0.1))
 def prompt(first, second, is_arpeggio):
     progression_string = f'{first} {second}'
     print(f'progression: {progression_string}')
-    count = max(len(qualities[quality(first)]), len(qualities[quality(second)]))
+    count = max(
+        len(notated.qualities[notated.quality(first)]), 
+        len(notated.qualities[notated.quality(second)])
+    )
     play(
         played.progression(
             et12(played.series(count) if is_arpeggio else played.mix, list(range(count))), 
@@ -35,23 +35,12 @@ def prompt(first, second, is_arpeggio):
     )
     return input('what do you feel? [press "enter" to replay, type "save" to save progress] ')
 
-class Serialization:
-    def __init__(self, delimiter):
-        self.delimiter = delimiter
-    def format(self, data):
-        return '\n'.join([
-            self.delimiter.join([str(cell) for cell in row]) 
-            for row in data
-        ])
-    def parse(self, text):
-        return [line.split(self.delimiter) for line in text.split('\n')]
-
 qualities_filename = 'qualities.tsv'
 roots_filename = 'roots.tsv'
-serialization = Serialization('\t')
+table = stored.DelimitedTable('\t')
 try:
     with open(roots_filename, 'r') as file:
-        data = serialization.parse(file.read())
+        data = table.parse(file.read())
 except:
     print('WARNING: an error occured while reading your save, future attempts to save may wipe old data')
     data = []
@@ -69,7 +58,7 @@ for i, (first, interval, is_arpeggio) in enumerate(itertools.product(root_sequen
             response = prompt(str(first), str(first+interval), is_arpeggio)
             if response == 'save':
                 with open(roots_filename, 'w') as file:
-                    file.write(serialization.format(data))
+                    file.write(table.format(data))
         data.append((i, str(first), str(first+interval), is_arpeggio, response))
 
 # for i, (first, second, is_arpeggio) in enumerate(itertools.product(quality_sequence, quality_sequence, [False,True])):
@@ -79,6 +68,6 @@ for i, (first, interval, is_arpeggio) in enumerate(itertools.product(root_sequen
 #             response = prompt('1'+first, '1'+second, is_arpeggio)
 #             if response == 'save':
 #                 with open(qualities_filename, 'w') as file:
-#                     file.write(serialization.format(data))
+#                     file.write(table.format(data))
 #         data.append((i, first, second, is_arpeggio, response))
 

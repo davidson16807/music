@@ -1,6 +1,7 @@
 import itertools
 
 import notated
+import stored
 
 quality_sequence = 'M m s2 s4 + - M7 m7 7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
 
@@ -132,28 +133,17 @@ class ProgressionTableHtml:
 			.replace('{{details}}', details)
 		)
 
-class Serialization:
-    def __init__(self, delimiter):
-        self.delimiter = delimiter
-    def format(self, data):
-        return '\n'.join([
-            self.delimiter.join([str(cell) for cell in row]) 
-            for row in data
-        ])
-    def parse(self, text):
-        return [line.split(self.delimiter) for line in text.split('\n')]
-
 qualities = 'qualities.tsv'
-serialization = Serialization('\t')
+table = stored.DelimitedTable('\t')
 with open(qualities, 'r') as file:
     data = {
     	(cells[1], cells[2]): cells[-1]
-    	for cells in serialization.parse(file.read())
+    	for cells in table.parse(file.read())
     	if len(cells) == 5
     }
 
 # view = (TonnetzSvg(GraphSvg(5), Metric2(), 5, 3))
 # print(view.table([[0,4,7,11], [0,4,7]], 500, 500, 5))
-view = ProgressionTableHtml(TonnetzSvg(GraphSvg(5), Metric2(), 5, 3))
-print(view.table(data))
+html = ProgressionTableHtml(TonnetzSvg(GraphSvg(5), Metric2(), 5, 3))
+print(html.table(data))
 

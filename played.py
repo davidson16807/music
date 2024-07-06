@@ -1,4 +1,4 @@
-import math
+from math import sin, pi
 
 '''
 `played` consists of representations of pure functions that are useful 
@@ -13,7 +13,7 @@ def sound(stream, framerate):
 
 # "timbre": maps hertz ⟶ track
 # NOTE: suck it, python, stop imposing dogma on us and give us arrow notation
-sine     = lambda volume: lambda hertz: lambda time: int(volume*255*(math.sin(2*math.pi*time*hertz)+1)/2)
+sine     = lambda volume: lambda hertz: lambda time: int(volume*255*(sin(2*pi*time*hertz)+1)/2)
 square   = lambda volume: lambda hertz: lambda time: int(volume*255*((time*hertz)%1.0 > 0.5))
 saw      = lambda volume: lambda hertz: lambda time: int(volume*255*((time*hertz)%1.0))
 triangle = lambda volume: lambda hertz: lambda time: int(volume*255*abs(((time*hertz)%2.0) - 1))
