@@ -1,6 +1,6 @@
 import itertools
 
-from core import chords
+import notated
 
 quality_sequence = 'M m s2 s4 + - M7 m7 7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
 
@@ -91,7 +91,7 @@ class ProgressionTableHtml:
 	def cell(self, i, response):
 		return f'''<td style="background: {self.color(response)}" onclick="click('{i}')">&nbsp;</td>'''
 	def detail(self, i, first, second, response):
-		tonnetz = self.tonnetz_view.tonnetz([chords[first], chords[second]], 400, 150, 2)
+		tonnetz = self.tonnetz_view.tonnetz([notated.qualities[first], notated.qualities[second]], 400, 150, 2)
 		return f'''<div id="{i}"><p><span style="color:black">{first}</span> → <span style="color:red">{second}</span>:</p><p>{response}:</p> {tonnetz}</div>'''
 	def table(self, responses):
 		cells = '\n'.join([
