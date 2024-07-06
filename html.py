@@ -1,41 +1,6 @@
 import itertools
 
-# chords: picking semitones to play together
-chords = {
-    'P1'   : [0], 
-    'm3'   : [0,3],
-    'M3'   : [0,4],
-    'P4'   : [0,5],
-    'P5'   : [0,7],
-    ''     : [0,4,7], # major
-    'M'    : [0,4,7], # major
-    'm'    : [0,3,7], # minor
-    'M6'   : [0,4,7,9], # major 6th
-    'm6'   : [0,3,7,8], # minor 6th
-    'M7'   : [0,4,7,11], # major 7th
-    'm7'   : [0,3,7,10], # minor 7th
-    'M9'   : [0,4,7,14], # major 9th
-    'm9'   : [0,3,7,13], # minor 9th
-    'M11'  : [0,4,7,18], # major 11th
-    'm11'  : [0,3,7,17], # minor 11th
-    '∅7'   : [0,3,6,10], # half diminished
-    'M79'  : [0,4,7,11,14], # major 7th/9th
-    'm79'  : [0,3,7,10,14], # minor 7th/9th
-    'M911' : [0,4,7,11,18], # major 9th/11th
-    'm911' : [0,3,7,10,17], # minor 9th/11th
-    's2'   : [0,2,7], # suspended 2
-    's4'   : [0,5,7], # suspended 4
-    '+'    : [0,4,8], # augmented
-    '-'    : [0,3,6], # diminished
-    '7'    : [0,4,7,10], # dominant 7 / major minor 7
-    '-7'   : [0,3,6,9 ], # diminished 7
-    'mM7'  : [0,3,7,11], # minor major 7
-    '+M7'  : [0,4,8,11], # augmented major
-    '+7'   : [0,4,8,11], # augmented
-    'add2' : [0,2,4,7],  # added 2nd
-    'add4' : [0,4,5,7],  # added 4th
-    'add9' : [0,4,7,14], # added 9th
-}
+from core import chords
 
 quality_sequence = 'M m s2 s4 + - M7 m7 7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
 
@@ -74,6 +39,7 @@ class TonnetzSvg:
 			metric.length(self.position(0, 1)),
 			metric.length(self.position(1, 0)),
 		)
+		self.radii = [1,0.8]
 		self.colors = 'black red green blue yellow magenta cyan'.split()
 		self.dasharray = ['0', '3 2']
 		self.lookup = {
@@ -85,9 +51,9 @@ class TonnetzSvg:
 			5: (-1,0),
 			6: (0,-2),
 			7: (1, 0),
-			8: (0, 2), # or (-1,-1)
+			8: (-1,-1), # or (0, 2)
 			9: (-1,1),
-			10:(-2,0), # or (1,-1)
+			10:(1,-1), # or (-2,0)
 			11:(1, 1),
 		}
 	def position(self, x,y):
@@ -95,7 +61,7 @@ class TonnetzSvg:
 			7*x + (4 if y>0 else -3)*y, 
 			y*self.row_gap
 		)
-	def chord(self, semitones, color='black', dasharray='0'):
+	def chord(self, semitones, color='black', dasharray='0', radius=0):
 		normalized = [semitone%12 for semitone in semitones]
 		root = min(normalized)
 		nodes = {self.lookup[semitone-root] for semitone in normalized}
@@ -106,14 +72,14 @@ class TonnetzSvg:
 			if self.metric.distance(position(*pair[0]), position(*pair[1])) <= self.max_length
 		}
 		return [
-			*[self.view.node(position(*v), color=color) for v in nodes],
+			*[self.view.node(position(*v), color=color, radius=radius) for v in nodes],
 			*[self.view.edge(position(*u), position(*v), color=color, dasharray=dasharray) for u,v in edges]
 		]
 	def tonnetz(self, chords, width, height, scale):
 		return self.view.graph([
 			element
 			for i, semitones in enumerate(chords)
-			for element in self.chord(semitones, color=self.colors[i], dasharray=self.dasharray[i])
+			for element in self.chord(semitones, color=self.colors[i], dasharray=self.dasharray[i], radius=self.radii[i])
 		], width, height, scale)
 
 
@@ -126,7 +92,7 @@ class ProgressionTableHtml:
 		return f'''<td style="background: {self.color(response)}" onclick="click('{i}')">&nbsp;</td>'''
 	def detail(self, i, first, second, response):
 		tonnetz = self.tonnetz_view.tonnetz([chords[first], chords[second]], 400, 150, 2)
-		return f'''<div id="{i}"><p>{first} {second}:</p><p>{response}:</p> {tonnetz}</div>'''
+		return f'''<div id="{i}"><p><span style="color:black">{first}</span> → <span style="color:red">{second}</span>:</p><p>{response}:</p> {tonnetz}</div>'''
 	def table(self, responses):
 		cells = '\n'.join([
 			'\n'.join([
