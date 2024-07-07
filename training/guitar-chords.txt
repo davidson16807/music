@@ -1,0 +1,161 @@
+A: x02220
+B: xx4442
+C: x32010
+D: xx0232
+E: 022100
+F: xx3211
+G: 320003
+
+Am: x02210
+Bm: xx4432
+Cm: x310xx
+Dm: xx0231
+Em: 022000
+Fm: xx3111
+Gm: xx0333
+
+A7: x02020
+B7: x21202
+C7: x32310
+D7: xx0212
+E7: 020100
+F7: 131211
+G7: 320001
+
+Am7: x02010
+Bm7: x20202
+Cm7: x313xx
+Dm7: xx0211
+Em7: 022030
+Fm7: 131111
+Gm7: x13030
+
+Amaj7: x02120
+Bmaj7: 22130x
+Cmaj7: x32000
+Dmaj7: xx0222
+Emaj7: 021100
+Fmaj7: xx3210
+Gmaj7: 3x0002
+
+A#/Bb: x10331
+C#/Db: x4312x
+D#/Eb: xx1343
+F#/Gb: xx4322
+G#/Ab: xx6544
+
+A#m/Bbm: x1332x
+C#m/Dbm: x421xx
+D#/Ebm: xx1342
+F#m/Gbm: xx4222
+G#m/Abm: xx6444
+
+A#7/Bb7: x,x,8,10,9,10
+C#7/Db7: x4342x
+D#7/Eb7: x6564x
+F#7/Gb7: xx4320
+G#7/Ab7: xx6878
+
+A#m7/Bbm7: 6x666x
+C#m7/Dbm7: x4660x 
+D#m7/Ebm7: xx1322
+F#m7/Gbm7: 2x222x
+G#m7/Abm7: 4x444x
+
+A#maj7/Bbmaj7: x1323x
+C#maj7/Dbmaj7: x4656x
+D#maj7/Ebmaj7: x6878x
+F#maj7/Gbmaj7: xx4321
+G#maj7/Abmaj7: xx6543
+
+A6: x02222
+B6: 22110x
+C6: x32210
+D6: xx0202
+E6: 022120
+F6: xx3231
+G6: 320000
+
+Am6: x02212
+Bm6: x20102
+Cm6: xx1213
+Dm6: xx0201
+Em6: 022020
+Fm6: xx0111
+Gm6: 312030
+
+C#6/Db6: x4332x
+D#6/Eb6: x6554x
+F#6/Gb6: xx4342
+G#6/Ab6: xx6564
+A#6/Bb6: x13333
+
+C#m6/Dbm6: 678696
+D#m6/Ebm6: xx1312
+F#m6/Gbm6: xx4645
+G#m6/Abm6: xx6867
+A#m6/Bbm6: 688686
+
+Asus2: x02200
+Asus4: x02230
+Csus4: x3301x
+Dsus2: xx0230
+Dsus4: xx0233
+Esus4: 022200
+Gsus4: 3x0013
+
+Aadd9: x02420
+Badd9: 74444x
+Cadd9: x32030
+Dadd9: xx0252
+Eadd9: xx2102
+Fadd9: xx3213
+Gadd9: 300003
+
+Amadd9: x75000
+Bmadd9: 799779
+Cmadd9: x3103x
+Dmadd9: x57760
+Emadd9: 022002
+Fmadd9: x8658x
+Gmadd9: 300333
+
+Aadd2: x02420
+Badd2: x21x22
+Cadd2: x32033
+Dadd2: x54x55
+Eadd2: 024100
+Fadd2: xx3213
+Gadd2: 300203
+
+Amadd2: x02410
+Bmadd2: 79060x
+Cmadd2: x5554x
+Dmadd2: x5325x
+Emadd2: 024000
+Fmadd2: x,8,10,0,9,0
+Gmadd2: 31023x
+
+A5: x02xxx
+B5: x24xxx
+C5: x35xxx
+D5: xx023x
+E5: 02xxxx
+F5: 13xxxx
+G5: 35xxxx
+
+A9: x,12,11,12,12,12
+B9: x21222
+C9: x32333
+D9: x54555
+E9: x76777
+F9: x87888
+G9: 32323x
+
+Am9: x,12,10,12,12,x
+Bm9: x2022x
+Cm9: x3133x
+Dm9: x5355x
+Em9: x7577x
+Fm9: x8688x
+Gm9: x,10,8,10,10,x
