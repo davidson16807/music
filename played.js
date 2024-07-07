@@ -7,7 +7,7 @@ for synthesizing music from notes, chords, and progressions.
 
 // "sound" plays "tracks", where a "track" maps time ⟶ waveheight and represents an elemental unit of track composition
 const sound = (context, sample_rate) => (track, duration) => {
-  	context.sample_Rate = sample_rate
+    context.sample_Rate = sample_rate
     const sample_count = duration*sample_rate;
     const array = new Float32Array(sample_count);
     for (let time = 0; time < sample_count; time++) { array[time] = track(time/sample_rate); }
@@ -76,7 +76,7 @@ const werckmeister4 = base_hertz => (step, octave=0) => (
 // "style": the manner of playing chords, maps intervals ⟶ track
 const style = (temperament, timbre) => (combination, sequence) => intervals =>
     combination(...sequence.map(i => 
-    	timbre(temperament(intervals[i%intervals.length], octave=(i/intervals.length)|0)) 
+    	timbre(temperament(intervals[i%intervals.length], (i/intervals.length)|0)) 
     ));
 
 // "progression": a series of chords, plays audio that is represented by string of space separated chords (e.g. "1m", "5M7")

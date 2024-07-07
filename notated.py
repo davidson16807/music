@@ -76,7 +76,7 @@ qualities = {
 mode = lambda halves: lambda tonic: lambda degree: tonic+halves[(degree-1)%len(halves)]+12*((degree-1)//len(halves))
 
 # chromatic: the identity mode
-chromatic = lambda tonic: lambda degree: tonic+degree
+chromatic = lambda tonic: lambda degree: tonic+degree-1
 
 # diatonic modes
 ionian     = mode([0,2,4,5,7,9,11]) # AKA major diatonic, bilawal, shankarabharanam

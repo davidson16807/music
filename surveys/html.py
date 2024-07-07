@@ -84,52 +84,75 @@ class TonnetzSvg:
 			for element in self.chord(semitones, color=self.colors[i], dasharray=self.dasharray[i], radius=self.radii[i])
 		], width, height, scale)
 
-
-
 class ProgressionTableHtml:
 	def __init__(self, tonnetz_view, quality_sequence):
 		self.tonnetz_view = tonnetz_view
 		self.quality_sequence = quality_sequence
 	def color(self, response):
 		return 'black'
-	def cell(self, i, response):
-		return f'''<td style="background: {self.color(response)}" onclick="click('{i}')">&nbsp;</td>'''
-	def detail(self, i, first, second, response):
+	def cell(self, first, second, response):
+		return f'''<td style="background: {self.color(response)}" onclick="details('1{first} 1{second}')">&nbsp;</td>'''
+	def detail(self, first, second, harmonic, melodic):
 		tonnetz = self.tonnetz_view.tonnetz([notated.qualities[first], notated.qualities[second]], 400, 150, 2)
-		return f'''<div id="{i}"><p><span style="color:black">{first}</span> → <span style="color:red">{second}</span>:</p><p>{response}:</p> {tonnetz}</div>'''
+		return f'''
+		<div id="1{first} 1{second}">
+			<p><span style="color:black">{first}</span> → <span style="color:red">{second}</span></p>
+			<p onclick="test('1{first} 1{second}', 0)">▶ harmonic: {harmonic}</p> 
+			<p onclick="test('1{first} 1{second}', 1)">▶ melodic: {melodic}</p> 
+			{tonnetz}
+		</div>
+		'''.replace('\n','')
 	def table(self, responses):
 		cells = '\n'.join([
 			'\n'.join([
 				'<tr>', 
-				*[self.cell(i*len(quality_sequence)+j, responses[(first, second)])
+				*[self.cell(first, second, responses[(first, second, True)])
 					if (first, second) in responses else ''
-					for j, second in enumerate(quality_sequence)],
+					for second in quality_sequence],
 				'</tr>'
 			])
-			for i, first in enumerate(quality_sequence)
+			for first in quality_sequence
 		])
 		details = '\n'.join([
-			self.detail(i, *progression, responses[progression])
-			for i, progression in enumerate(itertools.product(quality_sequence, quality_sequence))
-			if progression in responses
+			self.detail(first, second, responses[first, second, 'False'], responses[first, second, 'True'])
+			for first, second in itertools.product(quality_sequence, quality_sequence)
+			if (first, second, 'False') in responses and (first, second, 'True') in responses
 		])
 		html = '''
 		<!DOCTYPE html>
 		<html>
-		<head><meta name="viewport" content="width=device-width, initial-scale=1"></head>
+		<head>
+			<meta name="viewport" content="width=device-width, initial-scale=1">
+			<script src="../played.js"></script>
+			<script src="../notated.js"></script>
+			<script>
+			const et12 = style(equal(432,12), sine(0.1));
+			const key = chord(major7(0));
+			const range = length => [...Array(length)].map((_,i) => i)
+			const AudioContext = window.AudioContext || window.webkitAudioContext;
+			function test(progression_string, is_arpeggio){
+				const play = sound(new AudioContext(), 41900);
+				const note_count = Math.max(...progression_string.split(' ').map(chord_string => qualities[quality(chord_string)].length));
+				const combination = is_arpeggio? series(note_count) : mix;
+				play(progression(et12(combination, range(note_count)), key, 1, progression_string), 2);
+			}
+			</script>
+		</head>
 		<body style="display:flex">
 			<!--<div><table>{{cells}}</table></div>-->
 			<div>{{details}}</div>
+		</body>
+		</html>
+		'''
+		unused = '''
 			<script>
 			details = undefined;
-			function click(id) {
+			function details(id) {
 			  if(details){details.style.display = 'none';}
 			  details = document.getElementById(id);
 			  details.style.display = 'box';
 			}
 			</script>
-		</body>
-		</html>
 		'''
 		return (html
 			.replace('{{cells}}', cells)
@@ -140,14 +163,14 @@ qualities = 'qualities.tsv'
 table = stored.DelimitedTable('\t')
 with open(qualities, 'r') as file:
     data = {
-    	(cells[1], cells[2]): cells[-1]
+    	(cells[1], cells[2], cells[3]): cells[4]
     	for cells in table.parse(file.read())
     	if len(cells) == 5
     }
 
 # view = (TonnetzSvg(GraphSvg(5), Metric2(), 5, 3))
 # print(view.table([[0,4,7,11], [0,4,7]], 500, 500, 5))
-quality_sequence = 'M m s2 s4 + - M7 m7 7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
+quality_sequence = 'M m s2 s4 + - M7 m7 Mm7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
 html = ProgressionTableHtml(TonnetzSvg(GraphSvg(5), Metric2(), 5, 3), quality_sequence)
 print(html.table(data))
 
