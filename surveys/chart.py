@@ -91,22 +91,24 @@ class ProgressionTableHtml:
 	def color(self, response):
 		return 'black'
 	def cell(self, first, second, response):
-		return f'''<td style="background: {self.color(response)}" onclick="details('1{first} 1{second}')">&nbsp;</td>'''
+		return f'''
+		<td style="background: {self.color(response)}" onclick="details('1{first} 1{second}')">&nbsp;</td>
+		'''
 	def detail(self, first, second, harmonic, melodic):
-		tonnetz = self.tonnetz_view.tonnetz([notated.qualities[first], notated.qualities[second]], 400, 150, 2)
 		return f'''
 		<div id="1{first} 1{second}">
-			<p><span style="color:black">{first}</span> → <span style="color:red">{second}</span></p>
+			<p><span style="color:black">{first}</span> → <span style="color:red">{second}</span>:</p>
 			<p onclick="test('1{first} 1{second}', 0)">▶ harmonic: {harmonic}</p> 
 			<p onclick="test('1{first} 1{second}', 1)">▶ melodic: {melodic}</p> 
-			{tonnetz}
+			<p>tonnetz diagram:</p> 
+			{self.tonnetz_view.tonnetz([notated.qualities[first], notated.qualities[second]], 300, 150, 2)}
 		</div>
-		'''.replace('\n','')
+		'''
 	def table(self, responses):
 		cells = '\n'.join([
 			'\n'.join([
 				'<tr>', 
-				*[self.cell(first, second, responses[(first, second, True)])
+				*[self.cell(first, second, responses[(first, second, 'True')])
 					if (first, second) in responses else ''
 					for second in quality_sequence],
 				'</tr>'
