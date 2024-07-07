@@ -40,20 +40,20 @@ def chord(strum_code):
 	else:
 		return [(None if fret_id.lower() == 'x' else int(fret_id)) for fret_id in strum_code]
 
-def Tuning:
+class Tuning:
 	def __init__(self, open_string_semitones):
 		self.open_string_semitones = open_string_semitones
 	def pluck(string, fret):
 		return self.open_string_semitones[string]+fret
 
-def Tab:
-	def __init__(self, tuning, string_delimiter, strum_delimiter, unplayed, bar, bar_length):
+class Tab:
+	def __init__(self, tuning, bar_length, string_delimiter='\n', strum_delimiter='', unplayed='-', bar='|'):
 		self.tuning = tuning
+		self.bar_length = bar_length
+		self.bar = bar
+		self.unplayed = unplayed
 		self.string_delimiter = string_delimiter
 		self.strum_delimiter = strum_delimiter
-		self.unplayed = unplayed
-		self.bar = bar
-		self.bar_length = bar_length
 	def parse(tab_code):
 		return [
 			[(self.tuning.pluck(int(pluck)) if pluck != self.unplayed and i%bar_length!=0  else None) 
@@ -70,4 +70,10 @@ def Tab:
 			])
 			for semitones in semitone_lists
 		])
-	
+
+# # map to and from a list of semitone interval lists:
+# transposition = stored.Involution(lambda lists: list(map(list, zip(*lists))))
+# stored.Composition(
+# 	Tab(...),
+# 	transposition,
+# )
