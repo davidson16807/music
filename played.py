@@ -73,10 +73,10 @@ style = lambda temperament, timbre: lambda combination, sequence:  (
     ])
 )
 
-progression = lambda style, notation, chord_hertz, progression_string: (
+progression = lambda style, notation, chord_hertz, chords: (
     series(chord_hertz)(*[
         style(notation(chord_string)) 
-        for chord_string in progression_string.split()
+        for chord_string in chords
     ])
 )
 

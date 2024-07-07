@@ -80,10 +80,8 @@ const style = (temperament, timbre) => (combination, sequence) => intervals =>
     ));
 
 // "progression": a series of chords, plays audio that is represented by string of space separated chords (e.g. "1m", "5M7")
-const progression = (style, notation, chord_hertz, progression_string) => 
-    series(chord_hertz)(...progression_string.split(/\s/).map(chord_string => 
-    	style(notation(chord_string))
-    ));
+const progression = (style, notation, chord_hertz, chords) => 
+    series(chord_hertz)(...chords.map(chord_string => style(notation(chord_string))));
 
 AudioContext = window.AudioContext || window.webkitAudioContext;
 

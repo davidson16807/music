@@ -62,7 +62,7 @@ qualities = {
     's4'   : [0,5,7], # suspended 4
     '+'    : [0,4,8], # augmented
     '-'    : [0,3,6], # diminished
-    '7'    : [0,4,7,10], # dominant 7 / major minor 7
+    'Mm7'  : [0,4,7,10], # dominant 7 / major minor 7
     '-7'   : [0,3,6,9 ], # diminished 7
     'mM7'  : [0,3,7,11], # minor major 7
     '+M7'  : [0,4,8,11], # augmented major
