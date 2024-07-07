@@ -51,8 +51,10 @@ interval_sequence = [1,-1,5,-5,4,-4,3,-3,2,-2,7,-7,6,-6,9,-9,8,-8,11,-11,10,-10]
 codes = {'', 'save'}
 
 progression_sequence = itertools.chain(
-    ((f'1{first}', f'1{second}', combination) for (first, second, combination) in itertools.product(quality_sequence, quality_sequence, combination_sequence)),
-    ((f'{first+1}M', f'{first+interval+1}M', combination) for (first, interval, combination) in itertools.product(root_sequence, interval_sequence, combination_sequence)),
+    ((f'1{first}', f'1{second}', combination) 
+        for (first, second, combination) in itertools.product(quality_sequence, quality_sequence, combination_sequence)),
+    ((f'{first+1}M', f'{first+interval+1}M', combination) 
+        for (first, interval, combination) in itertools.product(root_sequence, interval_sequence, combination_sequence)),
 )
 
 chords_filename = 'chords.tsv'

@@ -48,9 +48,9 @@ class ProgressionTableHtml:
 		cells = '\n'.join([
 			'\n'.join([
 				'<tr>', 
-				*[self.cell(first, second, responses[(first, second, 'harmonic')])
-					if (first, second) in responses else ''
-					for second in self.quality_sequence],
+				# *[self.cell(first, second, responses[(first, second, 'harmonic')])
+				# 	if (first, second) in responses else ''
+				# 	for second in self.quality_sequence],
 				'</tr>'
 			])
 			for first in self.quality_sequence

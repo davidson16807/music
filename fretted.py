@@ -34,15 +34,27 @@ class FretSvg:
 				</g>
 			</svg>'''.replace('\n\t\t\t', '\n')
 
-def chord(press_code):
-	if ',' in press_code:
-		return [(None if fret_id.lower() == 'x' else int(fret_id)) for fret_id in press_code.split(',')]
+def chord(strum_code):
+	if ',' in strum_code:
+		return [(None if fret_id.lower() == 'x' else int(fret_id)) for fret_id in strum_code.split(',')]
 	else:
-		return [(None if fret_id.lower() == 'x' else int(fret_id)) for fret_id in press_code]
+		return [(None if fret_id.lower() == 'x' else int(fret_id)) for fret_id in strum_code]
 
 def Tuning:
 	def __init__(self, open_string_semitones):
 		self.open_string_semitones = open_string_semitones
+	def pluck(string, fret):
+		return self.open_string_semitones[string]+fret
 
-def tab(tab_string):
-	pass
+def Tab:
+	def __init__(self, tuning, string_delimiter, strum_delimiter):
+		self.tuning = tuning
+		self.string_delimiter = string_delimiter
+		self.strum_delimiter = strum_delimiter
+	def tab(tab_code):
+		return [
+			[(self.tuning.pluck(int(pluck)) if pluck=='-' else None) 
+				for pluck in string.split(self.strum_delimiter)] 
+			for string in tab_code.split(self.string_delimiter)
+		]
+	
