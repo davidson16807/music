@@ -1,4 +1,4 @@
-import drawn
+import fretted
 
 def whitespace(text):
 	return len(text.strip()) < 1
@@ -8,9 +8,8 @@ with open('guitar-chords.txt') as file:
 		for line in file.readlines() 
 		if not whitespace(line)]
 
-# print(chord_template.replace('{{content}}', 
-# 	drawn.FretSvg(drawn.FretPartSvg(6, 20, 30)).press_ids_to_diagram_svg(chord_string_to_press_ids('x83210'))))
-
-view = drawn.FretSvg([5,7,9], drawn.FretPartSvg(6, 20, 30))
+board = fretted.BoardSvg(
+	fretted.PartSvg(6, 20, 30),
+	[5,7,9], 500, 500)
 for name, string in chord_pairs:
-	print(f'{name}\t{view.press_ids_to_diagram_svg(chord_string_to_press_ids(string))}')
+	print(f'{name}\t{board.draw(chord(string))}')
