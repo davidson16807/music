@@ -104,8 +104,9 @@ quality = lambda chord_string: re.sub('^-?[0-9]{1,2}', '', chord_string)
 
 def chord(mode):
     def parse(chord_string):
+        stripped = chord_string.replace('#','').replace('b','')
         return [
-            mode(root(chord_string))+interval
-            for interval in qualities[quality(chord_string)]
+            mode(root(stripped)) + interval + ('#' in chord_string)-('b' in chord_string)
+            for interval in qualities[quality(stripped)]
         ]
     return parse

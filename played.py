@@ -5,10 +5,10 @@ from math import sin, pi
 for synthesizing music from notes, chords, and progressions.
 '''
 
-# "track" maps time ⟶ waveheight, it represents an elemental unit of track composition
-def sound(stream, framerate):
+# "sound" plays "tracks", where a "track" maps time ⟶ waveheight and represents an elemental unit of track composition
+def sound(stream, samplerate):
     def play(track, duration): 
-        stream.write(bytes(bytearray(tuple(track(time/framerate) for time in range(int(duration*framerate)))))) 
+        stream.write(bytes(bytearray(tuple(track(time/samplerate) for time in range(int(duration*samplerate)))))) 
     return play
 
 # "timbre": maps hertz ⟶ track
@@ -17,12 +17,12 @@ sine     = lambda volume: lambda hertz: lambda time: int(volume*255*(sin(2*pi*ti
 square   = lambda volume: lambda hertz: lambda time: int(volume*255*((time*hertz)%1.0 > 0.5))
 saw      = lambda volume: lambda hertz: lambda time: int(volume*255*((time*hertz)%1.0))
 triangle = lambda volume: lambda hertz: lambda time: int(volume*255*abs(((time*hertz)%2.0) - 1))
-parabol  = lambda t: (1-t)*(1-t*t) + t*(t-1)**2 # so named because it is the lead-in to "parabola"
+parabol  = lambda t: (1-t)*(1-t*t) + t*(t-1)**2 # so named because it is the lead-in to "parabola" :)
 parabola = lambda volume: lambda hertz: lambda time: int(volume*255*parabol(abs((2*(time*hertz+1)%2.0) - 1)))
 ''' ^^^The `parabola` wave is an interpolation between 
 parabolic approximations of a cosine's crest and trough where the interpolant "t" is a triangle wave.'''
 
-# combinations: fundamental operators of track composition
+# "combinations": fundamental operators of track composition
 mix    =                     lambda *tracks: lambda time: sum(track(time) for track in tracks)
 series = lambda track_hertz: lambda *tracks: lambda time: tracks[int((time*track_hertz)%len(tracks))](time)
 
@@ -65,7 +65,7 @@ werckmeister4 = lambda base_hertz: lambda step, octave=0: (
         (2**([0,91,196,298,395,498,595,698,793,893,1000,1097][step%12]/1200))
     )
 
-# style: the manner of playing chords, maps root×quality ⟶ track
+# style: the manner of playing chords, maps intervals ⟶ track
 style = lambda temperament, timbre: lambda combination, sequence:  (
     lambda intervals: combination(*[
         timbre(temperament(intervals[i%len(intervals)], octave=i//len(intervals))) 

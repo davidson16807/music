@@ -1,10 +1,13 @@
 # standard
 import math 
+import os
+import sys
 
 # 3rd-party
 from pyaudio import PyAudio
 
 # in-house
+sys.path.append(os.path.realpath('..'))
 import notated
 from notated import notes
 from notated import (ionian, aeolian, dorian, phrygian, lydian, mixolydian, locrian, major7, minor7)
@@ -118,10 +121,10 @@ c = notes['c']
 # track = progression(et12(series(5/1), [0,1,2,3,4,3,2]), notated.chord(phrygian(c)), 1/1,  '1m 6 1M9') # evil genius boss fight
 # track = progression(et12(series(7/1), [0,1,2,3,4,3,2]), notated.chord(phrygian(c)), 1/1,  '1m 6 3 1M9') # boss fight
 # track = progression(et12(series(5/1), [0,1,2,3,4,3,2]), notated.chord(major7(c)), 1/1,  '1m 3 2m 1m') # unfolding mystery
-track = progression(et12(series(5/1), [0,1,2,3,4,3]), notated.chord(phrygian(c)), 1/2,  '1 1b 4 4b 5 5b') # wacky science lab
+# track = progression(et12(series(5/1), [0,1,2,3,4,3]), notated.chord(phrygian(c)), 1/2,  '1 1b 4 4b 5 5b') # wacky science lab
 # track = progression(et12(series(5/1), [0,1,2]), notated.chord(major7(c)), 1/2,  '1m 3 1m 2 1m 7 1m') # "its coming from inside the house!"
-# track = progression(et12(series(4/1), [0,3,4,5]), mixolydian(notes['a']), 1/1,  '1 5m7') # epitaph, ff6
-# track = progression(et12(series(4/1), [0,3,4,5]), mixolydian(c), 1/1,  '4 5') # chocobo
+# track = progression(et12(series(4/1), [0,3,4,5]), notated.chord(mixolydian)(notes['a']), 1/1,  '1 5m7') # epitaph, ff6
+# track = progression(et12(series(4/1), [0,3,4,5]), notated.chord(mixolydian)(c), 1/1,  '4 5') # chocobo
 # track = progression(et12(mix, [0,1,2]), notated.chord(major7(c)), 1/2,  '1m 1s2 1m 1s2 3 1m') # last of us
 # track = progression(et12(series(3/2), [2,0,1]), notated.chord(major7(notes[)'a']), 1/2,  cosmos) 
 # track = progression(et12(series(3), [0,1,2]), notated.chord(major7(c)), 1, doowop)
@@ -136,7 +139,7 @@ track = progression(et12(series(5/1), [0,1,2,3,4,3]), notated.chord(phrygian(c))
 # track = progression(et12(series(3), [0,1,2]), notated.chord(major7(notes[)'d']), 1, pachabel)
 # track = progression(et12(series(6/2), [0,1,2,3,2,1]), notated.chord(major7(c)), 1/2,  hallelujah)
 # track = progression(et12(mix, [0,1,2]), notated.chord(major7(c)), 1/2,  morning_bell)
-# track = progression(et12(series(10/2), [0,0,1,2,3,2,3,2,3,6]), notated.chord(major7(c)), 1/2, dollars_and_cents)
+track = progression(et12(series(10/2), [0,0,1,2,3,2,3,2,3,6]), notated.chord(major7(c)), 1/2, dollars_and_cents)
 
 duration = len(hallelujah)*2
 

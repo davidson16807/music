@@ -1,9 +1,10 @@
 import itertools
+import os
+import sys
 
+sys.path.append(os.path.realpath('..'))
 import notated
 import stored
-
-quality_sequence = 'M m s2 s4 + - M7 m7 7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
 
 class GraphSvg:
 	def __init__(self, scale):
@@ -84,9 +85,11 @@ class TonnetzSvg:
 		], width, height, scale)
 
 
+
 class ProgressionTableHtml:
-	def __init__(self, tonnetz_view):
+	def __init__(self, tonnetz_view, quality_sequence):
 		self.tonnetz_view = tonnetz_view
+		self.quality_sequence = quality_sequence
 	def color(self, response):
 		return 'black'
 	def cell(self, i, response):
@@ -144,6 +147,7 @@ with open(qualities, 'r') as file:
 
 # view = (TonnetzSvg(GraphSvg(5), Metric2(), 5, 3))
 # print(view.table([[0,4,7,11], [0,4,7]], 500, 500, 5))
-html = ProgressionTableHtml(TonnetzSvg(GraphSvg(5), Metric2(), 5, 3))
+quality_sequence = 'M m s2 s4 + - M7 m7 7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
+html = ProgressionTableHtml(TonnetzSvg(GraphSvg(5), Metric2(), 5, 3), quality_sequence)
 print(html.table(data))
 

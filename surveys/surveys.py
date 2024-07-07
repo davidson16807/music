@@ -1,10 +1,14 @@
 # standard
 import itertools
+import os
+import sys
+
 
 # 3rd-party
 from pyaudio import PyAudio
 
 # in-house
+sys.path.append(os.path.realpath('..'))
 import played
 import notated
 import stored
