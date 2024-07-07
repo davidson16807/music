@@ -47,14 +47,27 @@ def Tuning:
 		return self.open_string_semitones[string]+fret
 
 def Tab:
-	def __init__(self, tuning, string_delimiter, strum_delimiter):
+	def __init__(self, tuning, string_delimiter, strum_delimiter, unplayed, bar, bar_length):
 		self.tuning = tuning
 		self.string_delimiter = string_delimiter
 		self.strum_delimiter = strum_delimiter
-	def tab(tab_code):
+		self.unplayed = unplayed
+		self.bar = bar
+		self.bar_length = bar_length
+	def parse(tab_code):
 		return [
-			[(self.tuning.pluck(int(pluck)) if pluck=='-' else None) 
-				for pluck in string.split(self.strum_delimiter)] 
+			[(self.tuning.pluck(int(pluck)) if pluck != self.unplayed and i%bar_length!=0  else None) 
+				for i, pluck in enumerate(string.split(self.strum_delimiter))] 
 			for string in tab_code.split(self.string_delimiter)
 		]
+	def format(semitone_lists):
+		return self.string_delimiter.join([
+			self.strum_delimiter.join([
+				(self.unplayed if semitone is None else 
+					self.bar if i%bar_length==0 else 
+						str(semitone))
+				for i,semitone in enumerate(semitones)
+			])
+			for semitones in semitone_lists
+		])
 	
