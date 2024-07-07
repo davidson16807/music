@@ -12,6 +12,7 @@ sys.path.append(os.path.realpath('..'))
 import played
 import notated
 import stored
+import drawn
 
 pyaudio = PyAudio()
 play = played.sound(
