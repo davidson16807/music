@@ -79,13 +79,16 @@ sensitive_female = '6m 4 1 5' # so coined by Boston Globe, example: zombie, snow
 doowop = '1 6m 4 5'
 pachabel = '8 5 6m 3m 4 1 4 5'
 hallelujah = '1 6m 1 6m 4 5 1 5 1 4 5 6m 4 5 37 6m 4 6m 4 1 5 1'
+clocks = '8m7 6m# 6m# 4m'
+dollars_and_cents = '1 1 1m 1m' #[0,0,1,2,3,2,3,2,3,6]
+morning_bell = '2m 2M7 2m 2M7 1s2 5' #[0,0,1,2,3,2,3,2,3,6]
+
+# the next few don't work as well
 anime_theme = '47 5m7 3m7 6m' # 
 rickroll = '4m9 7m7 5m7 1m' # 
 dire_dire_docks = '1 7 1 7 6m 7' #
 # dire_dire_docks2 = '4M 3m 2m 1M' #
 # dire_dire_docks = '4M 3m 2m 1- 2m 5M 1M' #
-dollars_and_cents = '1 1 1m 1m' #[0,0,1,2,3,2,3,2,3,6]
-morning_bell = '2m 2M7 2m 2M7 1s2 5' #[0,0,1,2,3,2,3,2,3,6]
 daydreaming = '6m 1 1 4M7 6m 1 1 4M7 6m 1 1 2s2 2m 2s2 2m 2s2 2m 2s2 2m' #[6,0,1,2,1,0] # something doesn't play right here
 everything_in_its_right_place = '5 1 2b 3b' #[0,0,1,2,3,2,3,2,3,6]
 epitaph = '1 5m7'
@@ -139,7 +142,8 @@ c = notes['c']
 # track = progression(et12(series(3), [0,1,2]), notated.chord(major7(notes[)'d']), 1, pachabel)
 # track = progression(et12(series(6/2), [0,1,2,3,2,1]), notated.chord(major7(c)), 1/2,  hallelujah)
 # track = progression(et12(mix, [0,1,2]), notated.chord(major7(c)), 1/2,  morning_bell)
-track = progression(et12(series(10/2), [0,0,1,2,3,2,3,2,3,6]), notated.chord(major7(c)), 1/2, dollars_and_cents)
+# track = progression(et12(series(10/2), [0,0,1,2,3,2,3,2,3,6]), notated.chord(major7(c)), 1/2, dollars_and_cents)
+track = progression(et12(series(10/2), [2,1,0]), notated.chord(major7(c)), 1/2, clocks)
 
 duration = len(hallelujah)*2
 
