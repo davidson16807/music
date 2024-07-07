@@ -21,8 +21,8 @@ class Metric2:
 		return (v[0]/length, v[1]/length)
 
 class ProgressionTableHtml:
-	def __init__(self, tonnetz_view, quality_sequence):
-		self.tonnetz_view = tonnetz_view
+	def __init__(self, tonnetz_svg, quality_sequence):
+		self.tonnetz = tonnetz_svg
 		self.quality_sequence = quality_sequence
 	def color(self, response):
 		return 'black'
@@ -37,7 +37,7 @@ class ProgressionTableHtml:
 			<p onclick="test('1{first} 1{second}', 0)">▶ harmonic: {harmonic}</p> 
 			<p onclick="test('1{first} 1{second}', 1)">▶ melodic: {melodic}</p> 
 			<p>tonnetz diagram:</p> 
-			{self.tonnetz_view.tonnetz([notated.qualities[first], notated.qualities[second]], 300, 150, 2)}
+			{drawn.svg(self.tonnetz.draw([notated.qualities[first], notated.qualities[second]]), 300, 150, 2)}
 		</div>
 		'''
 	def table(self, responses):
@@ -109,6 +109,14 @@ with open(qualities, 'r') as file:
 # view = (drawn.TonnetzSvg(drawn.GraphSvg(5), Metric2(), 5, 3))
 # print(view.table([[0,4,7,11], [0,4,7]], 500, 500, 5))
 quality_sequence = 'M m s2 s4 + - M7 m7 Mm7 mM7 M9 m9 M6 m6 M11 m11 ∅7 +M7 -7 +7 add2 add4 add9 M79 m79 M911 m911 m3 M3 P4 P5 P1 '.split()
-html = ProgressionTableHtml(drawn.TonnetzSvg(drawn.GraphSvg(5), Metric2(), 5, 3), quality_sequence)
+html = ProgressionTableHtml(
+	drawn.ProgressionTonnetzElements(
+		drawn.ChordTonnetzElements(
+			drawn.GraphSvg(5), 
+			Metric2(), 5, 3),
+		[1,0.8], 
+		'black red green blue yellow magenta cyan'.split(), 
+		['0', '3 2']), 
+	quality_sequence)
 print(html.table(data))
 
