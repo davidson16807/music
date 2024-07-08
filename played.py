@@ -65,6 +65,17 @@ werckmeister4 = lambda base_hertz: lambda step, octave=0: (
         (2**([0,91,196,298,395,498,595,698,793,893,1000,1097][step%12]/1200))
     )
 
+# "staff": a track that plays according to a representation of "staff notation", which consists of a series of intermixed semitone sets
+staff = lambda temperament, timbre, tempo_hertz: lambda semitone_sets: (
+    series(tempo_hertz)(*[
+        mix(*[
+            timbre(temperament(i)) 
+            for i in semitones
+        ])
+        for semitones in semitone_sets
+    ])
+)
+
 # style: the manner of playing chords, maps intervals ⟶ track
 style = lambda temperament, timbre: lambda combination, sequence:  (
     lambda intervals: combination(*[

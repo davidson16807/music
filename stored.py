@@ -31,13 +31,13 @@ class Composition:
     def format(self, data):
         return self.deep.format(self.shallow.format(data))
     def parse(self, text):
-        return self.shallow.parse(self.deep.parse(data))
+        return self.shallow.parse(self.deep.parse(text))
 
 class Involution:
     def __init__(self, involution):
         self.involution = involution
-    def parse(self, data):
-        return self.involution(data)
     def format(self, data):
         return self.involution(data)
+    def parse(self, text):
+        return self.involution(text)
 

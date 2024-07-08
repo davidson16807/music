@@ -1,3 +1,4 @@
+import re
 
 class PartSvg:
 	def __init__(self, string_count, string_size, fret_size):
@@ -41,28 +42,36 @@ def chord(strum_code):
 		return [(None if fret_id.lower() == 'x' else int(fret_id)) for fret_id in strum_code]
 
 class Tuning:
-	def __init__(self, open_string_semitones):
+	def __init__(self, open_string_semitones, capo=0):
 		self.open_string_semitones = open_string_semitones
-	def pluck(string, fret):
-		return self.open_string_semitones[string]+fret
+		self.capo = capo
+	def pluck(self, string, fret):
+		return self.open_string_semitones[string]+min(fret, self.capo)
 
 class Tab:
-	def __init__(self, tuning, bar_length, string_delimiter='\n', strum_delimiter='', unplayed='-', bar='|'):
+	def __init__(self, tuning, bar_length, characters_per_note=1, string_delimiter='\n', pluck_delimiter='', unplayed='-', bar='|'):
 		self.tuning = tuning
 		self.bar_length = bar_length
 		self.bar = bar
 		self.unplayed = unplayed
 		self.string_delimiter = string_delimiter
-		self.strum_delimiter = strum_delimiter
-	def parse(tab_code):
-		return [
-			[(self.tuning.pluck(int(pluck)) if pluck != self.unplayed and i%bar_length!=0  else None) 
-				for i, pluck in enumerate(string.split(self.strum_delimiter))] 
-			for string in tab_code.split(self.string_delimiter)
+		self.pluck_delimiter = pluck_delimiter
+		self.characters_per_note = characters_per_note
+	def parse(self, tab_code):
+		strings = [line
+			for line in tab_code.split(self.string_delimiter) 
+			if len(line.strip()) > 0
 		]
-	def format(semitone_lists):
+		print(strings)
+		return [
+			[(self.tuning.pluck(j, int(string[i])) if re.match('[0-9]+', string[i:i+self.characters_per_note]) else None)
+				for i in range(0,len(string), self.characters_per_note)
+				if string[i] != self.bar]
+			for j, string in enumerate(strings)
+		]
+	def format(self, semitone_lists):
 		return self.string_delimiter.join([
-			self.strum_delimiter.join([
+			self.pluck_delimiter.join([
 				(self.unplayed if semitone is None else 
 					self.bar if i%bar_length==0 else 
 						str(semitone))
@@ -71,9 +80,38 @@ class Tab:
 			for semitones in semitone_lists
 		])
 
+voices1 = '''
+|----------------|----------------|
+|2-2--2--2--0----|3-3--0--2--2----|
+|0-0--0--2--2----|2-2--2--0--0----|
+|2-2--2--1--1----|0-0--0--2--2----|
+|0-0000000000-00-|0-0000000000-00-|
+|---------------0|---------------0|
+'''
+
 # # map to and from a list of semitone interval lists:
-# transposition = stored.Involution(lambda lists: list(map(list, zip(*lists))))
-# stored.Composition(
-# 	Tab(...),
-# 	transposition,
-# )
+from pyaudio import PyAudio
+import stored
+import notated
+import played
+transposition = stored.Involution(lambda lists: list(map(list, zip(*lists))))
+tab = stored.Composition(transposition, Tab(Tuning([notated.notes[note] for note in 'eadgbe']), 17, characters_per_note=2))
+staff = lambda tab_semitones: [
+	{semitone 
+		for semitone in semitones 
+		if semitone is not None}
+	for semitones in tab_semitones
+]
+
+pyaudio = PyAudio()
+play = played.sound(
+    pyaudio.open(format=pyaudio.get_format_from_width(1), # open stream
+        channels=1,
+        rate=41900,
+        output=True
+    ), 41900
+)
+
+# print(strip(tab.parse(voices1)))
+et12 = played.equal(432,12)
+play(played.staff(et12, played.sine(0.1), 4) (staff(tab.parse(voices1))), 6)

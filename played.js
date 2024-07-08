@@ -73,18 +73,25 @@ const werckmeister4 = base_hertz => (step, octave=0) => (
         (2**([0,91,196,298,395,498,595,698,793,893,1000,1097][step%12]/1200))
     );
 
+// "staff": a track that plays according to a representation of "staff notation", which consists of a series of intermixed semitone sets
+const staff = (temperament, timbre, tempo_hertz) => semitone_sets =>
+    series(tempo_hertz)(...semitone_sets.map(
+        semitones => mix(...semitones.map(
+            i => timbre(temperament(i))
+        ))
+    ));
+
 // "style": the manner of playing chords, maps intervals ⟶ track
 const style = (temperament, timbre) => (combination, sequence) => intervals =>
     combination(...sequence.map(i => 
-    	timbre(temperament(intervals[i%intervals.length], (i/intervals.length)|0)) 
+        timbre(temperament(intervals[i%intervals.length], (i/intervals.length)|0)) 
     ));
 
 // "progression": a series of chords, plays audio that is represented by string of space separated chords (e.g. "1m", "5M7")
 const progression = (style, notation, chord_hertz, chords) => 
     series(chord_hertz)(...chords.map(chord_string => style(notation(chord_string))));
 
-AudioContext = window.AudioContext || window.webkitAudioContext;
-
+// AudioContext = window.AudioContext || window.webkitAudioContext;
 // sound(new AudioContext(), 41900) (sine(0.1)(432), 2); 
 // sound(new AudioContext(), 41900) (mix(sine(0.1)(432), sine(0.1)(1.5*432)), 2); 
 // sound(new AudioContext(), 41900) (series(2)(sine(0.1)(432), sine(0.1)(1.5*432)), 2); 
