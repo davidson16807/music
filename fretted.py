@@ -44,49 +44,62 @@ def chord(strum_code):
 class Tuning:
 	def __init__(self, open_string_semitones, capo=0):
 		self.open_string_semitones = open_string_semitones
+		self.string_count = len(open_string_semitones)
 		self.capo = capo
-	def pluck(self, string, fret):
-		return self.open_string_semitones[string]+min(fret, self.capo)
+		print(open_string_semitones)
+	def semitone(self, string, fret):
+		return self.open_string_semitones[self.string_count-1-string]+max(fret, self.capo)
+	def fret(self, string, semitone):
+		if semitone is None: return None
+		return semitone
+		fret = semitone - self.open_string_semitones[self.string_count-1-string]
+		return fret# None if fret <= self.capo else fret
 
 class Tab:
-	def __init__(self, tuning, bar_length, characters_per_note=1, string_delimiter='\n', pluck_delimiter='', unplayed='-', bar='|'):
+	def __init__(self, tuning, bar_length, characters_per_note=1, string_delimiter='\n', unplayed='-', bar='|'):
 		self.tuning = tuning
 		self.bar_length = bar_length
 		self.bar = bar
 		self.unplayed = unplayed
 		self.string_delimiter = string_delimiter
-		self.pluck_delimiter = pluck_delimiter
 		self.characters_per_note = characters_per_note
 	def parse(self, tab_code):
 		strings = [line
 			for line in tab_code.split(self.string_delimiter) 
 			if len(line.strip()) > 0
 		]
-		print(strings)
+		# print(strings)
 		return [
-			[(self.tuning.pluck(j, int(string[i])) if re.match('[0-9]+', string[i:i+self.characters_per_note]) else None)
-				for i in range(0,len(string), self.characters_per_note)
+			[(self.tuning.semitone(j, int(string[i:i+self.characters_per_note].strip(self.unplayed))) if re.match('[0-9]+', string[i]) else None)
+				for i in range(0, len(string), self.characters_per_note)
 				if string[i] != self.bar]
 			for j, string in enumerate(strings)
 		]
-	def format(self, semitone_lists):
+	def format(self, string_semitones):
+		print(string_semitones)
+		fret_lists = [
+			[self.tuning.fret(j, semitone)
+				for semitone in semitones]
+			for j, semitones in enumerate(string_semitones)
+		]
+		print(fret_lists)
 		return self.string_delimiter.join([
-			self.pluck_delimiter.join([
-				(self.unplayed if semitone is None else 
-					self.bar if i%bar_length==0 else 
-						str(semitone))
-				for i,semitone in enumerate(semitones)
+			''.join([
+				(self.unplayed if fret is None else 
+					# self.bar if i%self.bar_length==0 else 
+						str(fret))
+				for fret in frets
 			])
-			for semitones in semitone_lists
+			for frets in fret_lists
 		])
 
-voices1 = '''
-|----------------|----------------|
-|2-2--2--2--0----|3-3--0--2--2----|
-|0-0--0--2--2----|2-2--2--0--0----|
-|2-2--2--1--1----|0-0--0--2--2----|
-|0-0000000000-00-|0-0000000000-00-|
-|---------------0|---------------0|
+farleys = '''
+|--11-------11-------11----|--9--------9--------9-----|--8--------8--------
+|-----11-------11-------11-|-----11-------11-------11-|-----9--------9-----
+|--------12-------12-------|--------10-------10-------|--------10-------10-
+|--------------------------|--------------------------|--------------------
+|--------------------------|--------------------------|--------------------
+|--------------------------|--------------------------|--------------------
 '''
 
 # # map to and from a list of semitone interval lists:
@@ -94,8 +107,16 @@ from pyaudio import PyAudio
 import stored
 import notated
 import played
+
+pitch = stored.ScientificPitch(notated.notes)
 transposition = stored.Involution(lambda lists: list(map(list, zip(*lists))))
-tab = stored.Composition(transposition, Tab(Tuning([notated.notes[note] for note in 'eadgbe']), 17, characters_per_note=2))
+print([pitch.parse(note) for note in 'e2 a2 d3 g3 b3 e4'.split()])
+standard_tuning = Tuning([pitch.parse(note) for note in 'e2 a2 d3 g3 b3 e4'.split()])
+tuning = Tuning([pitch.parse(note) for note in 'e2 a2 d3 g3 b3 e4'.split()], capo=0)
+tab = stored.Composition(
+	transposition, 
+	Tab(tuning, 17, characters_per_note=3)
+)
 staff = lambda tab_semitones: [
 	{semitone 
 		for semitone in semitones 
@@ -112,6 +133,9 @@ play = played.sound(
     ), 41900
 )
 
-# print(strip(tab.parse(voices1)))
+staffed = (staff(tab.parse(farleys)))
+print(tab.format(staffed))
 et12 = played.equal(432,12)
-play(played.staff(et12, played.sine(0.1), 4) (staff(tab.parse(voices1))), 6)
+# play(played.staff(et12, played.sine(0.1), 4) (staff(tab.parse(farleys))), 6)
+print([[pitch.format(note) for note in sorted(beat)] for beat in staffed ])
+

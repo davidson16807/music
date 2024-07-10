@@ -6,7 +6,6 @@ without regard to application (e.g. playback, procedural generation, transcripti
 '''
 
 notes = {
-    'a♭' :-1,
     'a'  : 0,
     'a♯' : 1,
     'b♭' : 1,
@@ -27,6 +26,7 @@ notes = {
     'g♭' : 9,
     'g'  : 10,
     'g♯' : 11,
+    'a♭' : 11,
 }
 
 # qualities: picking semitones to play together
