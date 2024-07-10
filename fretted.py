@@ -46,7 +46,6 @@ class Tuning:
 		self.open_string_semitones = open_string_semitones
 		self.string_count = len(open_string_semitones)
 		self.capo = capo
-		print(open_string_semitones)
 	def semitone(self, string, fret):
 		return self.open_string_semitones[self.string_count-1-string]+max(fret, self.capo)
 	def fret(self, string, semitone):
@@ -56,19 +55,27 @@ class Tuning:
 		return fret# None if fret <= self.capo else fret
 
 class Tab:
-	def __init__(self, tuning, bar_length, characters_per_note=1, string_delimiter='\n', unplayed='-', bar='|'):
+	def __init__(self, tuning, bar_length, characters_per_note=1, string_delimiter='\n', staff_delimiter='\n\n', unplayed='-', bar='|', string_count = 6):
 		self.tuning = tuning
 		self.bar_length = bar_length
 		self.bar = bar
 		self.unplayed = unplayed
 		self.string_delimiter = string_delimiter
+		self.staff_delimiter = staff_delimiter
 		self.characters_per_note = characters_per_note
-	def parse(self, tab_code):
-		strings = [line
-			for line in tab_code.split(self.string_delimiter) 
-			if len(line.strip()) > 0
+		self.string_count = string_count
+	def parse(self, tab):
+		staff_strings = [
+			[line 
+				for line in staff.split(self.string_delimiter)
+				if len(line.strip()) > 0
+			] for staff in tab.split(self.staff_delimiter)
 		]
-		# print(strings)
+		string_staffs = list(map(list, zip(*staff_strings))) # transpose
+		strings = [
+			''.join(staffs)
+			for staffs in string_staffs
+		] # concatenate staffs
 		return [
 			[(self.tuning.semitone(j, int(string[i:i+self.characters_per_note].strip(self.unplayed))) if re.match('[0-9]+', string[i]) else None)
 				for i in range(0, len(string), self.characters_per_note)
@@ -76,13 +83,11 @@ class Tab:
 			for j, string in enumerate(strings)
 		]
 	def format(self, string_semitones):
-		print(string_semitones)
 		fret_lists = [
 			[self.tuning.fret(j, semitone)
 				for semitone in semitones]
 			for j, semitones in enumerate(string_semitones)
 		]
-		print(fret_lists)
 		return self.string_delimiter.join([
 			''.join([
 				(self.unplayed if fret is None else 
@@ -92,50 +97,4 @@ class Tab:
 			])
 			for frets in fret_lists
 		])
-
-clocks = '''
-|--11-------11-------11----|--9--------9--------9-----|--9--------9--------9-----|--8--------8--------8-----
-|-----11-------11-------11-|-----11-------11-------11-|-----11-------11-------11-|-----9--------9--------9--
-|--------12-------12-------|--------10-------10-------|--------10-------10-------|--------10-------10-------
-|--------------------------|--------------------------|--------------------------|--------------------------
-|--------------------------|--------------------------|--------------------------|--------------------------
-|--------------------------|--------------------------|--------------------------|--------------------------
-'''
-
-# # map to and from a list of semitone interval lists:
-from pyaudio import PyAudio
-import stored
-import notated
-import played
-
-pitch = stored.ScientificPitch(notated.notes)
-transposition = stored.Involution(lambda lists: list(map(list, zip(*lists))))
-print([pitch.parse(note) for note in 'e2 a2 d3 g3 b3 e4'.split()])
-standard_tuning = Tuning([pitch.parse(note) for note in 'e2 a2 d3 g3 b3 e4'.split()])
-tuning = Tuning([pitch.parse(note) for note in 'e2 a2 d3 g3 b3 e4'.split()], capo=0)
-tab = stored.Composition(
-	transposition, 
-	Tab(tuning, 17, characters_per_note=3)
-)
-staff = lambda tab_semitones: [
-	{semitone 
-		for semitone in semitones 
-		if semitone is not None}
-	for semitones in tab_semitones
-]
-
-pyaudio = PyAudio()
-play = played.sound(
-    pyaudio.open(format=pyaudio.get_format_from_width(1), # open stream
-        channels=1,
-        rate=41900,
-        output=True
-    ), 41900
-)
-
-staffed = (staff(tab.parse(clocks)))
-print(tab.format(staffed))
-et12 = played.equal(432,12)
-play(played.staff(et12, played.sine(0.1), 4) (staff(tab.parse(clocks))), 8)
-print([[pitch.format(note) for note in sorted(beat)] for beat in staffed ])
 
