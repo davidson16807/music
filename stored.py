@@ -43,6 +43,15 @@ class DelimitedLookup:
             for cells in [line.split(self.delimiter) for line in text.split('\n') ]
         }
 
+class Tokenization:
+    def __init__(self, delimiter, element):
+        self.element = element
+        self.delimiter = delimiter
+    def format(self, data):
+        return self.delimiter.join([self.element.format(element) for element in data])
+    def parse(self, text):
+        return [self.element.parse(element) for element in text.split(self.delimiter)]
+
 class Composition:
     def __init__(self, shallow, deep):
         self.shallow = shallow

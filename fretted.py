@@ -1,5 +1,8 @@
 import re
 
+import stored
+import notated
+
 class PartSvg:
 	def __init__(self, string_count, string_size, fret_size):
 		self.fret_size = fret_size
@@ -98,3 +101,11 @@ class Tab:
 			for frets in fret_lists
 		])
 
+pitch = stored.ScientificPitch(notated.notes)
+standard_guitar_tuning = Tuning([pitch.parse(note) for note in 'e2 a2 d3 g3 b3 e4'.split()])
+standard_ukulele_tuning = Tuning([pitch.parse(note) for note in 'g4 c4 e4 a4'.split()])
+
+standard_cello_tuning = Tuning([pitch.parse(note) for note in 'c2 g2 d3 a3'.split()])
+standard_viola_tuning = Tuning([pitch.parse(note) for note in 'c3 g3 d4 a4'.split()])
+standard_mandolin_tuning = Tuning([pitch.parse(note) for note in 'g3 d4 a4 e5'.split()])
+standard_violin_tuning = Tuning([pitch.parse(note) for note in 'g3 d4 a4 e5'.split()])
