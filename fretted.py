@@ -102,6 +102,22 @@ class Tab:
 			for frets in fret_lists
 		])
 
+
+'''
+`Staff` provides mappings to and from "tab semitones", 
+which are the direct representation of tabs and the only representation of relevance to fretted instruments.
+'''
+class Staff:
+	def __init__(self):
+		pass
+	def format(self, tab_semitones):
+		return [
+			sorted({semitone 
+					for semitone in semitones 
+					if semitone is not None})
+			for semitones in tab_semitones
+		]
+
 pitch = stored.ScientificPitch(notated.notes)
 standard_guitar_tuning = Tuning([pitch.parse(note) for note in 'e2 a2 d3 g3 b3 e4'.split()])
 standard_ukulele_tuning = Tuning([pitch.parse(note) for note in 'g4 c4 e4 a4'.split()])
