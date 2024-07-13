@@ -79,8 +79,9 @@ class Tab:
 			''.join(staffs)
 			for staffs in string_staffs
 		] # concatenate staffs
+		special = {'t':10}
 		return [
-			[(self.tuning.semitone(j, int(string[i:i+self.characters_per_note].strip(self.unplayed))) if re.match('[0-9]+', string[i]) else None)
+			[(self.tuning.semitone(j, special[string[i]] if string[i] in special else int(string[i:i+self.characters_per_note].strip(self.unplayed))) if re.match('[0-9t]+', string[i]) else None)
 				for i in range(0, len(string), self.characters_per_note)
 				if string[i] != self.bar]
 			for j, string in enumerate(strings)
