@@ -126,3 +126,5 @@ standard_cello_tuning = Tuning([pitch.parse(note) for note in 'c2 g2 d3 a3'.spli
 standard_viola_tuning = Tuning([pitch.parse(note) for note in 'c3 g3 d4 a4'.split()])
 standard_mandolin_tuning = Tuning([pitch.parse(note) for note in 'g3 d4 a4 e5'.split()])
 standard_violin_tuning = Tuning([pitch.parse(note) for note in 'g3 d4 a4 e5'.split()])
+
+# standard_tuning = fretted.Tuning(chordtext.parse('e2-a2-d3-g3-b3-e4'))

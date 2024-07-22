@@ -14,11 +14,10 @@ staff = fretted.Staff()
 chordtext = stored.Tokenization(sorted, '-', stored.ScientificPitch(notated.notes))
 stafftext = stored.Tokenization(list, ' ', chordtext)
 sequencer = stored.OnlineSequencer(1, 1)
-standard_tuning = fretted.Tuning(chordtext.parse('e2-a2-d3-g3-b3-e4'))
 et12 = played.equal(432,12)
 transposition = stored.Involution(lambda lists: list(map(list, zip(*lists))))
 
-clocks = stored.Composition(transposition, fretted.Tab(standard_tuning, 17, characters_per_note=3)).parse('''
+clocks = stored.Composition(transposition, fretted.Tab(fretted.standard_guitar_tuning, 17, characters_per_note=3)).parse('''
 |--11-------11-------11----|--9--------9--------9-----|--9--------9--------9-----|--8--------8--------8-----
 |-----11-------11-------11-|-----11-------11-------11-|-----11-------11-------11-|-----9--------9--------9--
 |--------12-------12-------|--------10-------10-------|--------10-------10-------|--------10-------10-------
@@ -106,7 +105,7 @@ dwarf_fortress_theme = ('''
 |-0-------------------------------|
 ''')
 
-histories_of_x_and_y = stored.Composition(transposition, fretted.Tab(standard_tuning, 17, characters_per_note=2)).parse('''
+histories_of_x_and_y = stored.Composition(transposition, fretted.Tab(fretted.standard_guitar_tuning, 17, characters_per_note=2)).parse('''
 |---------|-0---------------------------0---|-----------------0-----------0---|---------------------------------
 |-------3-|-----3-----------3---------------|-1-------------------1-----------|---------------------------------
 |-----1---|---------1-----------1-----------|-----2---------------------------|-2-------------------2-----------
@@ -797,7 +796,7 @@ three_hours = stored.Composition(transposition,
 
 riverman = stored.Composition(transposition, 
 	fretted.Tab(
-		fretted.Tuning(chordtext.parse('b2-b3-d4-g4-b4-e5'), capo=0), 
+		fretted.standard_guitar_tuning, 
 		17, characters_per_note=1
 	)
 ).parse('''
@@ -900,6 +899,49 @@ introduction = stored.Composition(transposition,
 --0------------------------------------------------
 ''')
 
+marcie = stored.Composition(transposition, 
+	fretted.Tab(
+		fretted.standard_guitar_tuning, 
+		# fretted.Tuning(chordtext.parse('d2-g2-d3-g3-b3-d4'), capo=0), 
+		17, characters_per_note=1
+	)
+).parse('''
+|----------------2--------------------------------------|
+|----3--3-3--2--3-2-0-1--1—-1-3-1--0-1-------0-1--------|
+|---0------0--2----2---0--0--------------0-0-------0-0--|
+|--3-----------2--------2--2--------------4---------4---|
+|-3--3-------2--------0--0---------0-0-0-----0-0-0------|
+|-------------------------------------------------------|
+
+|----------------2--------------------------------------|
+|----3--3-3--2--3-2-0-1--1—-1-3-1--0-3-------0-3--------|
+|---0------0--2----2---0--0--------------0-0-------0-0--|
+|--3-----------2--------2--2--------------4---------4---|
+|-3--3-------2--------0--0---------0-0-0-----0-0-0------|
+|-------------------------------------------------------|
+
+|----------------2--------------------------------------|
+|----3--3-3--2--3-2-0-1--1—-1h3-1--0-1-------0-1--------|
+|---0------0--2----2---0--0--------------0-0-------0-0--|
+|--3-----------2--------2--2--------------4---------4---|
+|-3--3-------2--------0--0---------0-0-0-----0-0-0------|
+|-------------------------------------------------------|
+
+|-----------------7----------------4-------------------2------------------|
+|----8---0-7---7-8-7------5----4-5---4------3-3-3--2--3-2-0-1--1—-1h3-1---|
+|---0--0-----7------7---0---0---------4----0-----0--2----2---0--0---------|
+|--8----8-----7--------5-5-5-5---------0--3----------2--------2—-2--------|
+|-8--------7----------5--------4-4-4-----3--3------2--------0--0----------|
+|-------------------------------------------------------------------------|
+
+|---------------------|
+|-0-1/3-----0-1/3-----|
+|-------0-0-------0-0-|
+|--------4---------4--|
+|-0-0-0-----0-0-0-----|
+|---------------------|
+''')
+
 pyaudio = PyAudio()
 play = played.sound(
     pyaudio.open(format=pyaudio.get_format_from_width(1), # open stream
@@ -909,7 +951,7 @@ play = played.sound(
     ), 41900
 )
 
-staffed = staff(three_hours)
+staffed = staff.format(far_leys)
 print(stafftext.format(staffed))
 print(sequencer.format(staffed))
-play(played.staff(et12, played.sine(0.1), 8) (staffed), len(staffed)/8)
+play(played.staff(et12, played.sine(0.1), 4) (staffed), len(staffed)/4)
