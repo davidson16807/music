@@ -2,6 +2,9 @@ import re
 
 import notated
 
+'''
+`ScientificPitch` parses and formats notes that are represented on an absolute scale using scientific , e.g. a1, b#2, etc.
+'''
 class ScientificPitch:
     def __init__(self, notes, preferred_accidental='♯'):
         self.semitone_for_note = {**notes, **{note.replace('♭','b').replace('♯','#'): semitone for note, semitone in notes.items()}}
@@ -14,27 +17,47 @@ class ScientificPitch:
     def format(self, semitone):
         return str(self.note_for_semitone[semitone%12]) + str((semitone+9)//12 + 4)
 
-# parse and format copy-pasted content from onlinesequencer.net
+'''
+`RelativeChord` parses chords that are represented on a relative scale, e.g. as4, bm, etc.
+'''
+class RelativeChord:
+    def __init__(self, notes, qualities):
+        self.qualities = qualities
+        self.notes = notes
+    def parse(self, chord_string):
+        stripped = chord_string.replace('#','').replace('b','')
+        root_regex = '^[a-gA-G][♭♯#b]?'
+        root_string = re.search(root_regex, chord_string).group(0).lower()
+        quality_string = re.sub(root_regex, '', chord_string)
+        return [
+            self.notes[root_string] + interval
+            for interval in self.qualities[quality_string]
+        ]
+
+'''
+`OnlineSequencer` parses and formats notes to and from staff notation (e.g. [[0,5,7], [1,6,8]]) and the notation used by onlinesequencer.net
+'''
 class OnlineSequencer:
     def __init__(self, instrument, note_length):
         self.demarcation = Demarcation(Tokenization(list, ';', Tokenization(list, ' ', Identity())), 'Online Sequencer:46419:', ':')
         self.pitch = ScientificPitch(notated.notes, '#')
         self.instrument = instrument
         self.note_length = note_length
-    def parse(self, staff):
-        notes = demarcation.parse(staff)
-        length = max([i for i, pitch, length, instrument in notes])
-        staff = [[] for i in range(length)]
+    def parse(self, text):
+        notes = self.demarcation.parse(text)
+        notes = [note for note in notes if len(note)==4]
+        length = max([int(i) for i, pitch, length, instrument in notes])
+        staves = [[] for i in range(length+1)]
         for i, pitch, length, instrument in notes:
-            staff[int(i)].append(self.pitch.parse(pitch.lower()))
-        return staff
-    def format(self, staff):
+            staves[int(i)].append(self.pitch.parse(pitch.lower()))
+        return staves
+    def format(self, staves):
         notes = [[str(i), self.pitch.format(semitone).upper(), str(self.note_length), str(self.instrument)] 
-            for i, beat in enumerate(staff) 
-            for semitone in beat]
+            for i, staff in enumerate(staves)
+            for semitone in staff]
         return self.demarcation.format(notes)
 
-# pitch = ScientificPitch(notes)
+# pitch = ScientificPitch(notated.notes)
 # for semitone in [-10,-9, -1,0,1,2,3,4, 0,12,-12]:
 #     print(pitch.format(semitone))
 #     print(semitone, pitch.parse(pitch.format(semitone)))

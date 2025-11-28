@@ -47,6 +47,7 @@ qualities = {
     'm'    : [0,3,7], # minor
     'M6'   : [0,4,7,9], # major 6th
     'm6'   : [0,3,7,8], # minor 6th
+    '7'    : [0,4,7,11], # major 7th
     'M7'   : [0,4,7,11], # major 7th
     'm7'   : [0,3,7,10], # minor 7th
     'M9'   : [0,4,7,14], # major 9th
